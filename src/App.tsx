@@ -3,8 +3,26 @@ import { Route, Routes } from "react-router";
 import { FinanzasLayout } from "@/features/Finanzas/Layout/FInanzasLayout";
 import { Toaster } from "@/components/index";
 import { DashboardLayout } from "./features/Dashboard/layout/DashboardLayout";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth > 768 ? false : true,
+  );
+
+  const detectarTamaño = () => {
+    setIsMobile(window.innerWidth > 768 ? false : true);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", detectarTamaño);
+    return () => {
+      window.removeEventListener("resize", detectarTamaño);
+    };
+  }, []);
+
+  console.log(isMobile);
+
   return (
     <>
       <Header />
@@ -14,7 +32,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardLayout />} />
         </Routes>
 
-        <Toaster />
+        <Toaster position={isMobile ? "top-center" : "bottom-right"} />
       </main>
     </>
   );
