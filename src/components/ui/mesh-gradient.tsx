@@ -1,14 +1,14 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 export interface MeshGradientBackgroundProps {
-  className?: string
-  children?: React.ReactNode
+  className?: string;
+  children?: React.ReactNode;
   /** Gradient colors */
-  colors?: string[]
+  colors?: string[];
   /** Animation speed multiplier */
-  speed?: number
+  speed?: number;
   /** Background color */
-  backgroundColor?: string
+  backgroundColor?: string;
 }
 
 export function MeshGradientBackground({
@@ -18,13 +18,16 @@ export function MeshGradientBackground({
   speed = 1,
   backgroundColor = "#030014",
 }: MeshGradientBackgroundProps) {
-  const duration1 = 60 / speed
-  const duration2 = 80 / speed
-  const duration3 = 90 / speed
-  const duration4 = 70 / speed
+  const duration1 = 60 / speed;
+  const duration2 = 80 / speed;
+  const duration3 = 90 / speed;
+  const duration4 = 70 / speed;
 
   return (
-    <div className={cn("fixed inset-0 overflow-hidden", className)} style={{ backgroundColor }}>
+    <div
+      className={cn("fixed inset-0 overflow-hidden", className)}
+      style={{ backgroundColor }}
+    >
       {/* Gradient orbs */}
       <div className="absolute inset-0">
         {/* Orb 1 - Top left */}
@@ -85,61 +88,40 @@ export function MeshGradientBackground({
       />
 
       {/* Content layer */}
-      {children && <div className="relative z-10 h-full w-full">{children}</div>}
-
-      <style jsx>{`
+      {children && (
+        <div className="relative z-10 h-full w-full">{children}</div>
+      )}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes meshMove1 {
-          0%, 100% {
-            transform: translate(0%, 0%) scale(1);
-          }
-          25% {
-            transform: translate(5%, 10%) scale(1.05);
-          }
-          50% {
-            transform: translate(10%, 5%) scale(0.95);
-          }
-          75% {
-            transform: translate(5%, -5%) scale(1.02);
-          }
+          0%, 100% { transform: translate(0%, 0%) scale(1); }
+          25% { transform: translate(5%, 10%) scale(1.05); }
+          50% { transform: translate(10%, 5%) scale(0.95); }
+          75% { transform: translate(5%, -5%) scale(1.02); }
         }
         @keyframes meshMove2 {
-          0%, 100% {
-            transform: translate(0%, 0%) scale(1);
-          }
-          33% {
-            transform: translate(-10%, 8%) scale(1.08);
-          }
-          66% {
-            transform: translate(-5%, -5%) scale(0.95);
-          }
+          0%, 100% { transform: translate(0%, 0%) scale(1); }
+          33% { transform: translate(-10%, 8%) scale(1.08); }
+          66% { transform: translate(-5%, -5%) scale(0.95); }
         }
         @keyframes meshMove3 {
-          0%, 100% {
-            transform: translate(0%, 0%) scale(1);
-          }
-          50% {
-            transform: translate(-8%, -10%) scale(1.1);
-          }
+          0%, 100% { transform: translate(0%, 0%) scale(1); }
+          50% { transform: translate(-8%, -10%) scale(1.1); }
         }
         @keyframes meshMove4 {
-          0%, 100% {
-            transform: translate(0%, 0%) scale(1);
-          }
-          25% {
-            transform: translate(15%, -10%) scale(0.9);
-          }
-          50% {
-            transform: translate(-10%, 15%) scale(1.1);
-          }
-          75% {
-            transform: translate(-15%, -5%) scale(0.95);
-          }
+          0%, 100% { transform: translate(0%, 0%) scale(1); }
+          25% { transform: translate(15%, -10%) scale(0.9); }
+          50% { transform: translate(-10%, 15%) scale(1.1); }
+          75% { transform: translate(-15%, -5%) scale(0.95); }
         }
-      `}</style>
+      `,
+        }}
+      />
     </div>
-  )
+  );
 }
 
 export default function MeshGradientBackgroundDemo() {
-  return <MeshGradientBackground />
+  return <MeshGradientBackground />;
 }
