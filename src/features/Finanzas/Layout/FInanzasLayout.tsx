@@ -78,13 +78,13 @@ export function FinanzasLayout() {
 
   const handleSearch = (buscar: string) => {
     setFilters((prev) => {
-      return { ...prev, buscar };
+      return { ...prev, etiqueta: "", buscar };
     });
   };
 
   const handleType = (tipo: string) => {
     setFilters((prev) => {
-      return { ...prev, tipo };
+      return { ...prev, etiqueta: "", tipo };
     });
   };
 
