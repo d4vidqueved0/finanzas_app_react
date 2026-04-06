@@ -39,7 +39,7 @@ export function CardRegistro({
 }: CardRegistroProps) {
   return (
     <Card
-      className={`w-full grid grid-cols-3 items-center justify-between border shadow-md shadow-black/50 px-4 py-2 border-b-4 rounded-xl  ${ESTILOS_TIPO[registro.tipo]}`}
+      className={`w-full bg-black/30 backdrop-blur-xl grid grid-cols-3 items-center justify-between border shadow-md shadow-black/50 px-4 py-2 border-b-4 rounded-xl  ${ESTILOS_TIPO[registro.tipo]}`}
     >
       <div className="col-start-1 col-end-3">
         <div className="flex gap-2 items-center mt-3">
@@ -94,7 +94,7 @@ export function CardRegistro({
               <Trash />
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="bg-black/30 backdrop-blur-xl">
             <AlertDialogHeader>
               <AlertDialogTitle>
                 ¿Estás seguro de eliminar este registro?

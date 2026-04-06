@@ -5,7 +5,7 @@ import { Sun, Moon, ChartNoAxesCombined, HandCoins } from "lucide-react";
 
 export function Header() {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
+    return localStorage.getItem("theme") || "dark";
   });
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export function Header() {
   };
 
   return (
-    <header className="fixed bottom-0 lg:bottom-auto lg:top-0  w-full bg-white/70 dark:bg-black/70 backdrop-blur-sm border-t-2 lg:border-0">
+    <header className="fixed z-50 bottom-0 lg:bottom-auto lg:top-0  w-full bg-black/30 backdrop-blur-xl border-t-2 lg:border-t-0 lg:border-b-2">
       <nav className="min-h-16 max-w-5xl w-full mx-auto flex items-center justify-center lg:justify-between lg:px-3">
         <div className="flex items-center justify-between gap-12">
           <NavLink
@@ -32,10 +32,11 @@ export function Header() {
             Finanzas
           </NavLink>
           <NavLink
- className={({ isActive }) =>
+            className={({ isActive }) =>
               (isActive ? "text-blue-900 font-semibold" : "") +
               ` dark:text-neutral-200 flex flex-col items-center`
-            }            to={"/dashboard"}
+            }
+            to={"/dashboard"}
           >
             <ChartNoAxesCombined className="lg:hidden" size={18} />
             Dashboard

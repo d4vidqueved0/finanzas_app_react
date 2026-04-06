@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, Loader, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/index";
 import type { RegistroTypeDB } from "../api/create-register";
 import { CardRegistro } from "../components/CardRegistro";
-// import { CardRegistroSkeleton } from "../components/CardRegistroSkeleton";
 import { getAllRegisterFilters } from "../api/get-all-register-filter";
 import { Filtros } from "../components/Filtros";
 import { formatearFecha } from "@/utils/formatearFecha";
@@ -176,12 +175,7 @@ export function FinanzasLayout() {
       />
       {error && <div className="text-center text-xl text-red-600">{error}</div>}
       {loading && (
-        // <section className="grid lg:grid-cols-3 gap-4 mt-5">
-        //   {Array.from({ length: 3 }).map((_, index) => (
-        //     <CardRegistroSkeleton key={index} />
-        //   ))}
-        // </section>
-        <div className="w-full flex justify-center">
+        <div className="w-full flex justify-center my-3">
           <Loader className="animate-spin duration-2000" size={36} />
         </div>
       )}

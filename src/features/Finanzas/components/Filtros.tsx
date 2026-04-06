@@ -23,7 +23,7 @@ export function Filtros({
 }: FiltrosProps) {
   return (
     <Card
-      className={`mt-5 px-5 transition-all p-0 m-0 ${showFilters ? "opacity-100" : "opacity-0 translate-y-full h-0"}`}
+      className={`bg-black/30 backdrop-blur-xl mt-5 px-5 transition-all p-0 m-0 ${showFilters ? "opacity-100" : "opacity-0 translate-y-full h-0"}`}
     >
       <div className="p-5 flex flex-col gap-3">
         <Field>

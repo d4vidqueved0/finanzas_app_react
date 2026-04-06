@@ -29,10 +29,11 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Registro, type RegistroType } from "../types/form";
-import { XIcon } from "lucide-react";
+import { LoaderCircle, XIcon } from "lucide-react";
 import type { RegistroTypeDB } from "../api/create-register";
 import { updateRegister } from "../api/update-register";
 import { toast } from "sonner";
+import { useState } from "react";
 
 interface EditRegistroProps {
   registro: RegistroTypeDB;
@@ -48,11 +49,7 @@ export function EditRegistro({
   refrescarRegistros,
 }: EditRegistroProps) {
   console.log(registro);
-  const {
-    control,
-    handleSubmit,
-    formState: { isLoading },
-  } = useForm<RegistroType>({
+  const { control, handleSubmit } = useForm<RegistroType>({
     resolver: zodResolver(Registro),
     defaultValues: {
       titulo: registro.titulo,
@@ -69,19 +66,28 @@ export function EditRegistro({
     name: "etiquetas",
   });
 
+  const [isLoading, setLoading] = useState(false);
+
   const onSubmit = async (data: RegistroType) => {
-    const dataFormateada = {
-      ...registro,
-      ...data,
-      etiquetas: data.etiquetas.map((etiqueta) => etiqueta.etiqueta),
-    };
-    const { error } = await updateRegister(dataFormateada);
-    if (error) {
-      toast.error("Error al actualizar el registro.");
-      return;
+    setLoading(true);
+    try {
+      const dataFormateada = {
+        ...registro,
+        ...data,
+        etiquetas: data.etiquetas.map((etiqueta) => etiqueta.etiqueta),
+      };
+      const { error } = await updateRegister(dataFormateada);
+      if (error) {
+        toast.error("Error al actualizar el registro.");
+        return;
+      }
+      toast.success("Se actualizó correctamente el registro.");
+      refrescarRegistros();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    toast.success("Se actualizó correctamente el registro.");
-    refrescarRegistros();
   };
 
   return (
@@ -92,7 +98,7 @@ export function EditRegistro({
           handleDialog();
         }}
       >
-        <DialogContent className="p-5">
+        <DialogContent className="p-5 bg-black/30 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle className="text-xl">Editar registro</DialogTitle>
             <DialogDescription>
@@ -196,7 +202,7 @@ export function EditRegistro({
                                   placeholder="Etiqueta"
                                   type="etiqueta"
                                 />
-                                {fields.length > 0 && (
+                                {fields.length > 1 && (
                                   <InputGroupAddon align="inline-end">
                                     <InputGroupButton
                                       type="button"
@@ -232,7 +238,14 @@ export function EditRegistro({
               </FieldGroup>
               <Field className="mt-4">
                 <Button variant={"default"} disabled={isLoading}>
-                  Guardar
+                  {isLoading ? (
+                    <>
+                      Guardando
+                      <LoaderCircle className="animate-spin" />
+                    </>
+                  ) : (
+                    "Guardar"
+                  )}
                 </Button>
                 <DialogClose asChild>
                   <Button className="w-full" variant={"secondary"}>

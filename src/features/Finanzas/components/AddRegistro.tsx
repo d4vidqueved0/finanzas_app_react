@@ -31,8 +31,9 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createRegister } from "../api/create-register";
 import { toast } from "sonner";
-import { XIcon } from "lucide-react";
+import { LoaderCircle, XIcon } from "lucide-react";
 import { Registro, type RegistroType } from "../types/form";
+import { useState } from "react";
 
 interface AddRegistroProps {
   getRegisters: () => void;
@@ -40,12 +41,7 @@ interface AddRegistroProps {
 }
 
 export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
-  const {
-    control,
-    handleSubmit,
-    formState: { isLoading },
-    reset,
-  } = useForm<RegistroType>({
+  const { control, handleSubmit, reset } = useForm<RegistroType>({
     resolver: zodResolver(Registro),
     defaultValues: {
       titulo: "",
@@ -60,22 +56,29 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
     name: "etiquetas",
   });
 
+  const [isLoading, setLoading] = useState(false);
+
   const onSubmit = async (data: RegistroType) => {
-    console.log(data);
-    const dataFormateada = {
-      ...data,
-      etiquetas: data.etiquetas.map((etiqueta) => etiqueta.etiqueta),
-      created_at: fechaRegistro,
-    };
-    console.log(dataFormateada);
-    const response = await createRegister(dataFormateada);
-    if (response.error) {
-      toast.error("Error al guardar.");
-      return;
+    setLoading(true);
+    try {
+      const dataFormateada = {
+        ...data,
+        etiquetas: data.etiquetas.map((etiqueta) => etiqueta.etiqueta),
+        created_at: fechaRegistro,
+      };
+      const response = await createRegister(dataFormateada);
+      if (response.error) {
+        toast.error("Error al guardar.");
+        return;
+      }
+      toast.success("Se guardó correctamente.");
+      reset();
+      getRegisters();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    toast.success("Se guardó correctamente.");
-    reset();
-    getRegisters();
   };
 
   return (
@@ -85,7 +88,7 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
           Añadir un registro
         </Button>
       </DialogTrigger>
-      <DialogContent className="p-5">
+      <DialogContent className="p-5 bg-black/30 backdrop-blur-xl">
         <DialogHeader>
           <DialogTitle className="text-xl">Agregar registro</DialogTitle>
           <DialogDescription>
@@ -219,7 +222,14 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
 
             <Field className="mt-4">
               <Button variant={"default"} disabled={isLoading}>
-                {isLoading ? "Cargando..." : "Guardar"}
+                {isLoading ? (
+                  <>
+                    Guardando
+                    <LoaderCircle className="animate-spin" />
+                  </>
+                ) : (
+                  "Guardar"
+                )}
               </Button>
               <DialogClose asChild>
                 <Button className="w-full" variant={"secondary"}>
