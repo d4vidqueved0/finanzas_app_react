@@ -1,10 +1,11 @@
-import { Header } from "@/Global/Header";
-import { Route, Routes } from "react-router";
-import { FinanzasLayout } from "@/features/Finanzas/Layout/FInanzasLayout";
 import { Toaster } from "@/components/index";
-import { DashboardLayout } from "./features/Dashboard/layout/DashboardLayout";
+import { FinanzasLayout } from "@/features/Finanzas/Layout/FInanzasLayout";
+import { Header } from "@/Global/Header";
 import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router";
 import { MeshGradientBackground } from "./components/ui/mesh-gradient";
+import { DashboardLayout } from "./features/Dashboard/layout/DashboardLayout";
+// import { MeshGradientBackground } from "./components/ui/mesh-gradient";
 
 function App() {
   const [isMobile, setIsMobile] = useState(
@@ -26,17 +27,17 @@ function App() {
 
   return (
     <>
-<MeshGradientBackground colors={['#064E3B', '#10B981', '#6EE7B7']}>
-      <Header />
-      <main className="w-full max-w-5xl mx-auto px-3 mb-24 mt-12 lg:mt-24 lg:mb-12">
-        <Routes>
-          <Route path="/finanzas" element={<FinanzasLayout />} />
-          <Route path="/dashboard" element={<DashboardLayout />} />
-        </Routes>
+      <MeshGradientBackground>
+        <Header />
+        <main className="w-full max-w-5xl mx-auto px-3 mb-24 mt-12 lg:mt-24 lg:mb-12">
+          <Routes>
+            <Route path="/finanzas" element={<FinanzasLayout />} />
+            <Route path="/dashboard" element={<DashboardLayout />} />
+          </Routes>
 
-        <Toaster position={isMobile ? "top-center" : "bottom-right"} />
-      </main>
-</MeshGradientBackground>
+          <Toaster position={isMobile ? "top-center" : "bottom-right"} />
+        </main>
+      </MeshGradientBackground>
     </>
   );
 }
