@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/index";
 
 export function CardRegistroSkeleton() {
   return (
-    <div className="w-full flex items-center justify-between border shadow-md shadow-black/50 my-5 px-4 py-2 border-b-4 rounded-xl">
+    <div className="w-full flex items-center justify-between border shadow-md shadow-black/50  px-4 py-2 border-b-4 rounded-xl">
       <div>
         <div className="flex gap-2 items-center mt-3">
           {/* Esqueleto para el Título (h3) */}

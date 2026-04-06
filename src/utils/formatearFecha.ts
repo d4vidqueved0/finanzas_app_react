@@ -1,5 +1,12 @@
+import dayjs from "dayjs";
+
 export const formatearFecha = (fecha: string) => {
-  const tipoFecha = new Date(fecha);
-  const fechaFormateada = tipoFecha.toLocaleDateString("es-CL", {dateStyle: "long"});
+  if (!fecha) return "";
+
+  const fechaFormateada = dayjs(fecha).format("D [de] MMMM [de] YYYY");
+
+  console.log("Input:", fecha);
+  console.log("Output:", fechaFormateada);
+
   return fechaFormateada;
 };
