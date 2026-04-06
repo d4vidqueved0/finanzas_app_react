@@ -29,29 +29,17 @@ import {
 } from "@/components/index";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { createRegister } from "../api/create-register";
 import { toast } from "sonner";
 import { XIcon } from "lucide-react";
+import { Registro, type RegistroType } from "../types/form";
 
-const Registro = z.object({
-  titulo: z.string().trim().min(1, "No puede quedar vacio este campo."),
-  valor: z
-    .number("Ingrese un numero.")
-    .min(1, "No puede quedar vacio este campo."),
-  tipo: z.enum(["Ingreso", "Egreso"], "Selecciona una de las opciones."),
-  etiquetas: z
-    .array(
-      z.object({
-        etiqueta: z.string().min(1, "Este campo no puede quedar vacio."),
-      }),
-    )
-    .max(5, "Maximo de 5 etiquetas por registro."),
-});
+interface AddRegistroProps {
+  getRegisters: () => void;
+  fechaRegistro: string;
+}
 
-export type RegistroType = z.infer<typeof Registro>;
-
-export function AddRegistro({ getRegisters }: { getRegisters: () => void }) {
+export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
   const {
     control,
     handleSubmit,
@@ -63,6 +51,7 @@ export function AddRegistro({ getRegisters }: { getRegisters: () => void }) {
       titulo: "",
       valor: "" as never,
       tipo: "" as never,
+      etiquetas: [{ etiqueta: "" }],
     },
   });
 
@@ -72,9 +61,11 @@ export function AddRegistro({ getRegisters }: { getRegisters: () => void }) {
   });
 
   const onSubmit = async (data: RegistroType) => {
+    console.log(data);
     const dataFormateada = {
       ...data,
       etiquetas: data.etiquetas.map((etiqueta) => etiqueta.etiqueta),
+      created_at: fechaRegistro,
     };
     console.log(dataFormateada);
     const response = await createRegister(dataFormateada);
@@ -94,14 +85,14 @@ export function AddRegistro({ getRegisters }: { getRegisters: () => void }) {
           Añadir un registro
         </Button>
       </DialogTrigger>
-      <DialogContent className="p-8">
+      <DialogContent className="p-5">
         <DialogHeader>
           <DialogTitle className="text-xl">Agregar registro</DialogTitle>
           <DialogDescription>
             Completa los siguientes campos para añadir un registro.
           </DialogDescription>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
+            <FieldGroup className="max-h-80 p-1 overflow-y-scroll overflow-x-hidden no-scrollbar">
               <Controller
                 name="titulo"
                 control={control}
@@ -190,9 +181,8 @@ export function AddRegistro({ getRegisters }: { getRegisters: () => void }) {
                                 id={`form-rhf-array-etiqueta-${index}`}
                                 aria-invalid={fieldState.invalid}
                                 placeholder="Etiqueta"
-                                type="etiqueta"
                               />
-                              {fields.length > 0 && (
+                              {fields.length > 1 && (
                                 <InputGroupAddon align="inline-end">
                                   <InputGroupButton
                                     type="button"
@@ -225,17 +215,18 @@ export function AddRegistro({ getRegisters }: { getRegisters: () => void }) {
                   </Button>
                 </FieldGroup>
               </FieldSet>
-              <Field className="mt-4">
-                <Button variant={"default"} disabled={isLoading}>
-                  Guardar
-                </Button>
-                <DialogClose asChild>
-                  <Button className="w-full" variant={"secondary"}>
-                    Cancelar
-                  </Button>
-                </DialogClose>
-              </Field>
             </FieldGroup>
+
+            <Field className="mt-4">
+              <Button variant={"default"} disabled={isLoading}>
+                {isLoading ? "Cargando..." : "Guardar"}
+              </Button>
+              <DialogClose asChild>
+                <Button className="w-full" variant={"secondary"}>
+                  Cancelar
+                </Button>
+              </DialogClose>
+            </Field>
           </form>
         </DialogHeader>
       </DialogContent>

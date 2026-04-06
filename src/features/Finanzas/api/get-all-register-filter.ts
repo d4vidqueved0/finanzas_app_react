@@ -4,6 +4,7 @@ interface Filters {
   buscar: string;
   tipo: string;
   created_at: string;
+  etiqueta: string;
 }
 
 export const getAllRegisterFilters = async (filters: Filters) => {
@@ -17,6 +18,10 @@ export const getAllRegisterFilters = async (filters: Filters) => {
 
   if (filters.tipo && filters.tipo !== "Todos" && filters.tipo !== "") {
     query = query.eq("tipo", filters.tipo);
+  }
+
+  if (filters.etiqueta && filters.etiqueta !== "") {
+    query = query.contains("etiquetas", [filters.etiqueta]);
   }
   const response = await query;
   return response;

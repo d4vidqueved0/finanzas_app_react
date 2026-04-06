@@ -11,6 +11,7 @@ import { formatearFecha } from "@/utils/formatearFecha";
 import dayjs from "dayjs";
 import { deleteRegister } from "../api/delete-register";
 import { toast } from "sonner";
+import { EditRegistro } from "../components/EditRegistro";
 
 const fechaActual = dayjs().format("YYYY-MM-DD");
 
@@ -25,7 +26,20 @@ export function FinanzasLayout() {
     buscar: "",
     tipo: "",
     created_at: fechaActual,
+    etiqueta: "",
   }));
+  const [edit, setEdit] = useState<RegistroTypeDB | null>(null);
+  const [isOpenEdit, setIsOpenEdit] = useState(false);
+
+  const handleEdit = (registro: RegistroTypeDB) => {
+    console.log(registro);
+    setEdit(registro);
+    setIsOpenEdit(true);
+  };
+
+  const handleDialog = () => {
+    setIsOpenEdit((prev) => !prev);
+  };
 
   // const getRegisters = async () => {
   //   setLoading(true);
@@ -54,6 +68,7 @@ export function FinanzasLayout() {
         return;
       }
       setRegistros(data);
+      setError("");
     } catch (error) {
       console.error(error);
     } finally {
@@ -73,6 +88,15 @@ export function FinanzasLayout() {
     });
   };
 
+  const handleEtiqueta = (etiqueta: string) => {
+    setFilters((prev) => {
+      if (prev.etiqueta === etiqueta) {
+        return { ...prev, etiqueta: "" };
+      }
+      return { ...prev, etiqueta };
+    });
+  };
+
   useEffect(() => {
     const timeOut = setTimeout(() => {
       getRegistersFilters();
@@ -88,6 +112,7 @@ export function FinanzasLayout() {
     setFilters((prev) => {
       return {
         ...prev,
+        etiqueta: "",
         created_at: dayjs(prev.created_at).add(1, "day").format("YYYY-MM-DD"),
       };
     });
@@ -97,6 +122,7 @@ export function FinanzasLayout() {
     setFilters((prev) => {
       return {
         ...prev,
+        etiqueta: "",
         created_at: dayjs(prev.created_at)
           .subtract(1, "day")
           .format("YYYY-MM-DD"),
@@ -118,7 +144,10 @@ export function FinanzasLayout() {
     <>
       <h1 className="text-5xl text-center font-bold">Finanzas</h1>
       <div className="flex items-center justify-between my-5">
-        <AddRegistro getRegisters={getRegistersFilters} />
+        <AddRegistro
+          getRegisters={getRegistersFilters}
+          fechaRegistro={filters.created_at}
+        />
         <Button
           onClick={() => {
             setShowFilters((prev) => !prev);
@@ -167,9 +196,21 @@ export function FinanzasLayout() {
               key={registro.id}
               registro={registro}
               handleDelete={handleDelete}
+              handleEtiqueta={handleEtiqueta}
+              etiquetaFiltro={filters.etiqueta}
+              handleEdit={handleEdit}
             />
           ))}
       </section>
+      {edit !== null && (
+        <EditRegistro
+          refrescarRegistros={getRegistersFilters}
+          key={edit.id}
+          open={isOpenEdit}
+          handleDialog={handleDialog}
+          registro={edit}
+        />
+      )}
     </>
   );
 }
