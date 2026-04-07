@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import { AddRegistro } from "../components/AddRegistro";
-import { ArrowLeft, ArrowRight, Loader, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/index";
-import type { RegistroTypeDB } from "../api/create-register";
-import { CardRegistro } from "../components/CardRegistro";
-import { getAllRegisterFilters } from "../api/get-all-register-filter";
-import { Filtros } from "../components/Filtros";
 import { formatearFecha } from "@/utils/formatearFecha";
 import dayjs from "dayjs";
-import { deleteRegister } from "../api/delete-register";
+import { ArrowLeft, ArrowRight, Loader, SlidersHorizontal } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import type { RegistroTypeDB } from "../api/create-register";
+import { deleteRegister } from "../api/delete-register";
+import { getAllRegisterFilters } from "../api/get-all-register-filter";
+import { AddRegistro } from "../components/AddRegistro";
+import { CardRegistro } from "../components/CardRegistro";
 import { EditRegistro } from "../components/EditRegistro";
+import { Filtros } from "../components/Filtros";
 
 const fechaActual = dayjs().format("YYYY-MM-DD");
 
@@ -77,22 +77,22 @@ export function FinanzasLayout() {
 
   const handleSearch = (buscar: string) => {
     setFilters((prev) => {
-      return { ...prev, etiqueta: "", buscar };
+      return { ...prev, etiqueta: "", buscar, created_at: 'Todas las fechas' };
     });
   };
 
   const handleType = (tipo: string) => {
     setFilters((prev) => {
-      return { ...prev, etiqueta: "", tipo };
+      return { ...prev, etiqueta: "", tipo, created_at: 'Todas las fechas' };
     });
   };
 
   const handleEtiqueta = (etiqueta: string) => {
     setFilters((prev) => {
       if (prev.etiqueta === etiqueta) {
-        return { ...prev, etiqueta: "" };
+        return { ...prev, etiqueta: "", created_at: fechaActual };
       }
-      return { ...prev, etiqueta };
+      return { ...prev, etiqueta, created_at: "Todas las fechas" };
     });
   };
 
@@ -112,7 +112,13 @@ export function FinanzasLayout() {
       return {
         ...prev,
         etiqueta: "",
-        created_at: dayjs(prev.created_at).add(1, "day").format("YYYY-MM-DD"),
+        created_at: dayjs(
+          prev.created_at === "Todas las fechas"
+            ? fechaActual
+            : prev.created_at,
+        )
+          .add(1, "day")
+          .format("YYYY-MM-DD"),
       };
     });
   };
@@ -122,7 +128,11 @@ export function FinanzasLayout() {
       return {
         ...prev,
         etiqueta: "",
-        created_at: dayjs(prev.created_at)
+        created_at: dayjs(
+          prev.created_at === "Todas las fechas"
+            ? fechaActual
+            : prev.created_at,
+        )
           .subtract(1, "day")
           .format("YYYY-MM-DD"),
       };
@@ -162,7 +172,11 @@ export function FinanzasLayout() {
         <Button onClick={lessDay}>
           <ArrowLeft />
         </Button>
-        <span>{formatearFecha(filters.created_at)}</span>
+        <span>
+          {filters.created_at === "Todas las fechas"
+            ? "Todas las fechas"
+            : formatearFecha(filters.created_at)}
+        </span>
         <Button onClick={addDay}>
           <ArrowRight />
         </Button>

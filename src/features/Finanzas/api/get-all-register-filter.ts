@@ -12,9 +12,12 @@ export const getAllRegisterFilters = async (filters: Filters) => {
   let query = supabase
     .from("Registro")
     .select("*")
-    .ilike("titulo", `%${filters.buscar}%`)
-    .gte("created_at", `${filters.created_at}T00:00:00`)
-    .lte("created_at", `${filters.created_at}T23:59:59`);
+    .ilike("titulo", `%${filters.buscar}%`);
+
+  if (filters.created_at !== "Todas las fechas" && filters.created_at !== "")
+    query = query
+      .gte("created_at", `${filters.created_at}T00:00:00`)
+      .lte("created_at", `${filters.created_at}T23:59:59`);
 
   if (filters.tipo && filters.tipo !== "Todos" && filters.tipo !== "") {
     query = query.eq("tipo", filters.tipo);
