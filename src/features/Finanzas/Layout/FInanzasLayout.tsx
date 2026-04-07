@@ -77,13 +77,18 @@ export function FinanzasLayout() {
 
   const handleSearch = (buscar: string) => {
     setFilters((prev) => {
-      return { ...prev, etiqueta: "", buscar, created_at: 'Todas las fechas' };
+      return {
+        ...prev,
+        etiqueta: "",
+        buscar,
+        created_at: buscar === "" ? fechaActual : "Todas las fechas",
+      };
     });
   };
 
   const handleType = (tipo: string) => {
     setFilters((prev) => {
-      return { ...prev, etiqueta: "", tipo, created_at: 'Todas las fechas' };
+      return { ...prev, etiqueta: "", tipo, created_at: "Todas las fechas" };
     });
   };
 
@@ -149,6 +154,14 @@ export function FinanzasLayout() {
     getRegistersFilters();
   };
 
+  const clearFilters = () => {
+    setFilters({
+      buscar: "",
+      tipo: "",
+      created_at: fechaActual,
+      etiqueta: "",
+    });
+  };
   return (
     <>
       <h1 className="text-5xl text-center font-bold">Finanzas</h1>
@@ -183,6 +196,7 @@ export function FinanzasLayout() {
       </section>
 
       <Filtros
+        clearFilters={clearFilters}
         handleSearch={handleSearch}
         handleType={handleType}
         showFilters={showFilters}

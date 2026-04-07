@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   Field,
   Input,
@@ -15,11 +16,13 @@ interface FiltrosProps {
   showFilters: boolean;
   handleSearch: (buscar: string) => void;
   handleType: (value: string) => void;
+  clearFilters: () => void;
 }
 export function Filtros({
   showFilters,
   handleSearch,
   handleType,
+  clearFilters,
 }: FiltrosProps) {
   return (
     <Card
@@ -55,6 +58,11 @@ export function Filtros({
               </SelectGroup>
             </SelectContent>
           </Select>
+        </Field>
+        <Field>
+          <Button onClick={clearFilters} variant={"default"}>
+            Limpiar filtros
+          </Button>
         </Field>
       </div>
     </Card>
