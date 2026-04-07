@@ -20,6 +20,7 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 interface ChartAreaProps {
   data: RegistroTypeDB[];
+  className?: string;
 }
 
 const chartConfig = {
@@ -29,7 +30,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartArea({ data }: ChartAreaProps) {
+export function ChartArea({ data, className }: ChartAreaProps) {
   const dataChart = useMemo(() => {
     const primerDia = dayjs().startOf("month");
     const cantidadMes = dayjs(primerDia).daysInMonth();
@@ -54,7 +55,7 @@ export function ChartArea({ data }: ChartAreaProps) {
 
   console.log(dataChart);
   return (
-    <Card className="pt-0 dark:bg-black/30 backdrop-blur-xl">
+    <Card className={`pt-0 dark:bg-black/30 backdrop-blur-xl ${className}`}>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle>Grafico de Área interactivo</CardTitle>

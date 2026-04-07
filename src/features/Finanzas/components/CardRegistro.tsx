@@ -1,7 +1,3 @@
-import { formatearDinero } from "@/utils/formatearDInero";
-import { formatearFecha } from "@/utils/formatearFecha";
-import { Pencil, Trash } from "lucide-react";
-import type { RegistroTypeDB } from "../api/create-register";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +12,10 @@ import {
   Button,
   Card,
 } from "@/components";
+import { formatearDinero } from "@/utils/formatearDInero";
+import { formatearFecha } from "@/utils/formatearFecha";
+import { Pencil, Trash } from "lucide-react";
+import type { RegistroTypeDB } from "../api/create-register";
 
 const ESTILOS_TIPO = {
   Ingreso: "border-b-blue-500",
@@ -86,7 +86,12 @@ export function CardRegistro({
 
       <div className="flex items-center flex-col">
         <span className="text-lg font-semibold truncate">
-          {formatearDinero(registro.valor)}
+          {(() => {
+            const formatted = formatearDinero(registro.valor) || "";
+            return registro.valor !== undefined && formatted.length > 8
+              ? `${formatted.slice(0, 8)}...`
+              : formatted;
+          })()}
         </span>
         <AlertDialog>
           <AlertDialogTrigger asChild>
