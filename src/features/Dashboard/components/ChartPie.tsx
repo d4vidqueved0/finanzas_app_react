@@ -30,7 +30,7 @@ const chartConfig = {
   },
   Egreso: {
     label: "Egresos",
-    color: "#1410ff",
+    color: "#669cb8",
   },
 } satisfies ChartConfig;
 

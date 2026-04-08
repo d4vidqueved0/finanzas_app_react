@@ -1,10 +1,22 @@
-import { Button } from "@/components/index";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Button,
+} from "@/components/index";
 import { formatearFecha } from "@/utils/formatearFecha";
 import dayjs from "dayjs";
 import { ArrowLeft, ArrowRight, Loader, SlidersHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { RegistroTypeDB } from "../api/create-register";
+import { deleteManyRegister } from "../api/delete-many-registers";
 import { deleteRegister } from "../api/delete-register";
 import { getAllRegisterFilters } from "../api/get-all-register-filter";
 import { AddRegistro } from "../components/AddRegistro";
@@ -13,8 +25,8 @@ import { EditRegistro } from "../components/EditRegistro";
 import { Filtros } from "../components/Filtros";
 
 const fechaActual = dayjs().format("YYYY-MM-DD");
-
-console.log(fechaActual);
+let timeMouse: number = 0;
+let interval: ReturnType<typeof setInterval>;
 
 export function FinanzasLayout() {
   const [registros, setRegistros] = useState<RegistroTypeDB[] | []>([]);
@@ -30,6 +42,10 @@ export function FinanzasLayout() {
   const [edit, setEdit] = useState<RegistroTypeDB | null>(null);
   const [isOpenEdit, setIsOpenEdit] = useState(false);
 
+  const [deleteRegisters, setDeleteRegisters] = useState<string[] | []>([]);
+
+  const [isDeleteActive, setDeleteActive] = useState(false);
+
   const handleEdit = (registro: RegistroTypeDB) => {
     console.log(registro);
     setEdit(registro);
@@ -40,24 +56,7 @@ export function FinanzasLayout() {
     setIsOpenEdit((prev) => !prev);
   };
 
-  // const getRegisters = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const { data, error } = await getAllRegister();
-  //     console.log(data);
-  //     if (error) {
-  //       setError("Error al recuperar los registros.");
-  //       return;
-  //     }
-  //     setRegistros(data);
-  //   } catch (error) {
-  //     console.error(error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  const getRegistersFilters = async () => {
+  const getRegistersFilters = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await getAllRegisterFilters(filters);
@@ -73,7 +72,7 @@ export function FinanzasLayout() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   const handleSearch = (buscar: string) => {
     setFilters((prev) => {
@@ -109,8 +108,7 @@ export function FinanzasLayout() {
     return () => {
       clearTimeout(timeOut);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [getRegistersFilters]);
 
   const addDay = () => {
     setFilters((prev) => {
@@ -162,24 +160,163 @@ export function FinanzasLayout() {
       etiqueta: "",
     });
   };
+
+  const testEvent = () => {
+    console.log("DOWN");
+    interval = setInterval(() => {
+      timeMouse = 500;
+    }, 500);
+  };
+
+  const checkTime = () => {
+    console.log("UP");
+    console.log(timeMouse);
+    clearInterval(interval);
+
+    if (timeMouse && timeMouse >= 500) {
+      setDeleteActive(true);
+    }
+    timeMouse = 0;
+  };
+
+  useEffect(() => {
+    document
+      .getElementById("seccion-registros")
+      ?.addEventListener("mousedown", testEvent);
+    document
+      .getElementById("seccion-registros")
+      ?.addEventListener("mouseup", checkTime);
+    document
+      .getElementById("seccion-registros")
+      ?.addEventListener("touchstart", testEvent);
+    document
+      .getElementById("seccion-registros")
+      ?.addEventListener("touchend", checkTime);
+
+    return () => {
+      document
+        .getElementById("seccion-registros")
+        ?.removeEventListener("mousedown", testEvent);
+      document
+        .getElementById("seccion-registros")
+        ?.removeEventListener("mouseup", checkTime);
+      document
+        .getElementById("seccion-registros")
+        ?.removeEventListener("touchstart", testEvent);
+      document
+        .getElementById("seccion-registros")
+        ?.removeEventListener("touchend", checkTime);
+    };
+  }, []);
+
+  const handleDeleteRegisters = (idRegistro: string) => {
+    if (!idRegistro) return;
+    let newDelete: string[];
+
+    const existe = deleteRegisters.filter((reg) => reg === idRegistro).length;
+
+    if (existe) {
+      newDelete = deleteRegisters.filter((reg) => reg !== idRegistro);
+    } else {
+      newDelete = [...deleteRegisters, idRegistro];
+    }
+
+    setDeleteRegisters(newDelete);
+  };
+
+  // console.log(timeMouse);
+
+  // console.log(deleteRegisters);
+
+  const handleDeleteManyRegisters = async () => {
+    try {
+      const response = await deleteManyRegister(deleteRegisters);
+      if (response.error) {
+        toast.error("Error al eliminar.");
+        return;
+      }
+      toast.success("Se eliminaron los registros correctamente.");
+      setDeleteRegisters([]);
+      setDeleteActive(false);
+      getRegistersFilters();
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <>
       <h1 className="text-5xl text-center font-bold">Finanzas</h1>
-      <div className="flex items-center justify-between my-5">
-        <AddRegistro
-          getRegisters={getRegistersFilters}
-          fechaRegistro={filters.created_at}
-        />
-        <Button
-          onClick={() => {
-            setShowFilters((prev) => !prev);
-          }}
-          variant={"outline"}
-        >
-          <SlidersHorizontal />
-          Filtros
-        </Button>
+      <div className="grid grid-rows-2 gap-3 lg:gap-0 lg:flex lg:items-center lg:justify-between my-5">
+        <div className="flex items-center justify-between gap w-full">
+          <AddRegistro
+            getRegisters={getRegistersFilters}
+            fechaRegistro={filters.created_at}
+          />
+          <Button
+            onClick={() => {
+              setShowFilters((prev) => !prev);
+            }}
+            variant={"outline"}
+          >
+            <SlidersHorizontal />
+            Filtros
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-3 lg:ms-3 justify-between">
+          {isDeleteActive &&
+            (deleteRegisters.length > 0 ? (
+              <>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant={"destructive"}>
+                      Eliminar {deleteRegisters.length}{" "}
+                      {deleteRegisters.length > 1 ? " registros" : " registro"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-black/30 backdrop-blur-xl">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {"¿Estás seguro de eliminar " +
+                          (deleteRegisters.length > 1
+                            ? "estos registros?"
+                            : "este registro?")}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta accion no se puede deshacer.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        variant={"destructive"}
+                        onClick={handleDeleteManyRegisters}
+                      >
+                        Si, eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            ) : (
+              <Button variant={"outline"}>
+                No hay registros seleccionados
+              </Button>
+            ))}
+          {isDeleteActive && (
+            <Button
+            variant={"outline"}
+              onClick={() => {
+                setDeleteActive(false);
+                setDeleteRegisters([]);
+              }}
+            >
+              Cancelar
+            </Button>
+          )}
+        </div>
       </div>
+
       {/* Filtros */}
       <section className="w-full flex items-center justify-between mb-3">
         <Button onClick={lessDay}>
@@ -210,7 +347,10 @@ export function FinanzasLayout() {
       {!loading && registros.length === 0 && (
         <div className="text-center text-xl mt-3">No hay registros.</div>
       )}
-      <section className="grid lg:grid-cols-3 gap-4 mt-5">
+      <section
+        id="seccion-registros"
+        className="grid lg:grid-cols-3 gap-4 mt-5"
+      >
         {!loading &&
           registros.length > 0 &&
           registros.map((registro) => (
@@ -221,6 +361,14 @@ export function FinanzasLayout() {
               handleEtiqueta={handleEtiqueta}
               etiquetaFiltro={filters.etiqueta}
               handleEdit={handleEdit}
+              handleDeleteRegister={
+                isDeleteActive ? handleDeleteRegisters : undefined
+              }
+              isSelect={
+                deleteRegisters.find((reg) => reg === registro.id)
+                  ? true
+                  : false
+              }
             />
           ))}
       </section>

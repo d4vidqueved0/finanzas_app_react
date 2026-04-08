@@ -1,39 +1,39 @@
 import {
-  DialogTrigger,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogHeader,
-  DialogDescription,
   Button,
-  FieldGroup,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
   Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
   Input,
-  SelectTrigger,
-  SelectValue,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  Select,
-  DialogClose,
-  FieldError,
-  FieldSet,
-  FieldLegend,
-  FieldDescription,
-  FieldContent,
-  InputGroupInput,
-  InputGroup,
-  InputGroupButton,
-  InputGroupAddon,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/index";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createRegister } from "../api/create-register";
-import { toast } from "sonner";
 import { LoaderCircle, XIcon } from "lucide-react";
-import { Registro, type RegistroType } from "../types/form";
 import { useState } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { createRegister } from "../api/create-register";
+import { Registro, type RegistroType } from "../types/form";
 
 interface AddRegistroProps {
   getRegisters: () => void;
@@ -58,6 +58,13 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
 
   const [isLoading, setLoading] = useState(false);
 
+  const [isOpen, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    console.log(isOpen);
+    setOpen((prev) => !prev);
+  };
+
   const onSubmit = async (data: RegistroType) => {
     setLoading(true);
     try {
@@ -74,6 +81,7 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
       toast.success("Se guardó correctamente.");
       reset();
       getRegisters();
+      handleOpen();
     } catch (error) {
       console.error(error);
     } finally {
@@ -82,10 +90,14 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button role="" variant={"default"}>
-          Añadir un registro
+        <Button
+          className="cursor-pointer"
+          onClick={handleOpen}
+          variant={"outline"}
+        >
+          Añadir un registro {isOpen}
         </Button>
       </DialogTrigger>
       <DialogContent className="p-5 bg-black/30 backdrop-blur-xl">

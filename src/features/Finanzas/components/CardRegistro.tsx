@@ -14,7 +14,7 @@ import {
 } from "@/components";
 import { formatearDinero } from "@/utils/formatearDInero";
 import { formatearFecha } from "@/utils/formatearFecha";
-import { Pencil, Trash } from "lucide-react";
+import { Circle, CircleCheckBig, Pencil, Trash } from "lucide-react";
 import type { RegistroTypeDB } from "../api/create-register";
 
 const ESTILOS_TIPO = {
@@ -28,6 +28,8 @@ interface CardRegistroProps {
   handleEtiqueta: (etiqueta: string) => void;
   etiquetaFiltro: string;
   handleEdit: (registro: RegistroTypeDB) => void;
+  handleDeleteRegister?: undefined | ((idRegistro: string) => void);
+  isSelect: boolean;
 }
 
 export function CardRegistro({
@@ -36,12 +38,27 @@ export function CardRegistro({
   handleEtiqueta,
   etiquetaFiltro,
   handleEdit,
+  isSelect,
+  handleDeleteRegister = undefined,
 }: CardRegistroProps) {
   return (
     <Card
-      className={`w-full bg-black/30 backdrop-blur-xl grid grid-cols-3 items-center justify-between border shadow-md shadow-black/50 px-4 py-2 border-b-4 rounded-xl  ${ESTILOS_TIPO[registro.tipo]}`}
+      onClick={
+        handleDeleteRegister !== undefined
+          ? () => {
+              if (registro.id) handleDeleteRegister(registro.id);
+            }
+          : undefined
+      }
+      className={`w-full bg-black/30 backdrop-blur-xl grid grid-cols-3 items-center justify-between border shadow-md shadow-black/50 px-4 py-2 border-b-4 rounded-xl  ${ESTILOS_TIPO[registro.tipo]} ${handleDeleteRegister !== undefined ? "relative" : " "}`}
     >
       <div className="col-start-1 col-end-3">
+        {handleDeleteRegister !== undefined &&
+          (isSelect ? (
+            <CircleCheckBig className="absolute top-0 right-0 m-3" />
+          ) : (
+            <Circle className="absolute top-0 right-0 m-3" />
+          ))}
         <div className="flex gap-2 items-center mt-3">
           <h3 className="font-bold text-2xl capitalize line-clamp-1">
             {registro.titulo}
