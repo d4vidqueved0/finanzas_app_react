@@ -55,9 +55,9 @@ export function CardRegistro({
       <div className="col-start-1 col-end-3">
         {handleDeleteRegister !== undefined &&
           (isSelect ? (
-            <CircleCheckBig className="absolute top-0 right-0 m-3" />
+            <CircleCheckBig size={16} className="absolute top-0 right-0 m-2" />
           ) : (
-            <Circle className="absolute top-0 right-0 m-3" />
+            <Circle size={16} className="absolute top-0 right-0 m-2" />
           ))}
         <div className="flex gap-2 items-center mt-3">
           <h3 className="font-bold text-2xl capitalize line-clamp-1">

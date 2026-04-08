@@ -14,6 +14,7 @@ import { formatearFecha } from "@/utils/formatearFecha";
 import dayjs from "dayjs";
 import { ArrowLeft, ArrowRight, Loader, SlidersHorizontal } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import type { RegistroTypeDB } from "../api/create-register";
 import { deleteManyRegister } from "../api/delete-many-registers";
@@ -245,8 +246,13 @@ export function FinanzasLayout() {
   };
   return (
     <>
+      <Helmet>
+        <title>Finanzas</title>
+      </Helmet>
       <h1 className="text-5xl text-center font-bold">Finanzas</h1>
-      <div className="grid grid-rows-2 gap-3 lg:gap-0 lg:flex lg:items-center lg:justify-between my-5">
+      <div
+        className={`grid ${isDeleteActive ? "grid-rows-2" : "grid-rows-1"} gap-3 lg:gap-0 lg:flex lg:items-center lg:justify-between my-5`}
+      >
         <div className="flex items-center justify-between gap w-full">
           <AddRegistro
             getRegisters={getRegistersFilters}
@@ -305,7 +311,7 @@ export function FinanzasLayout() {
             ))}
           {isDeleteActive && (
             <Button
-            variant={"outline"}
+              variant={"outline"}
               onClick={() => {
                 setDeleteActive(false);
                 setDeleteRegisters([]);
@@ -350,6 +356,9 @@ export function FinanzasLayout() {
       <section
         id="seccion-registros"
         className="grid lg:grid-cols-3 gap-4 mt-5"
+        onContextMenu={(ev) => {
+          ev.preventDefault();
+        }}
       >
         {!loading &&
           registros.length > 0 &&

@@ -39,9 +39,9 @@ function App() {
         <Toaster
           toastOptions={{
             style: {
-              backgroundColor: "rgba(0, 0, 0, 0.3)" /* bg-black/30 */,
-              backdropFilter: "blur(24px)" /* backdrop-blur-xl */,
-              WebkitBackdropFilter: "blur(24px)" /* Soporte para Safari */,
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)",
             },
           }}
           position={isMobile ? "top-center" : "bottom-right"}

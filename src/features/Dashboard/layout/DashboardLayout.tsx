@@ -8,6 +8,7 @@ import { getRegisterMonth } from "../api/get-register-month";
 import { CardMetrica } from "../components/CardMetrica";
 import { ChartArea } from "../components/ChartArea";
 import { ChartPie } from "../components/ChartPie";
+import { Helmet } from "react-helmet-async";
 
 export function DashboardLayout() {
   const [data, setData] = useState<RegistroTypeDB[] | []>([]);
@@ -54,6 +55,10 @@ export function DashboardLayout() {
   console.log(dataMetricas);
   return (
     <>
+
+    <Helmet>
+      <title>Dashboard</title>
+    </Helmet>
       <h1 className="text-5xl text-center font-bold">Dashboard</h1>
 
       {isLoading && (
