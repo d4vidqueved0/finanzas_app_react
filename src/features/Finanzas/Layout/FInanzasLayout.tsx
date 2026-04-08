@@ -355,7 +355,7 @@ export function FinanzasLayout() {
       )}
       <section
         id="seccion-registros"
-        className="grid lg:grid-cols-3 gap-4 mt-5"
+        className="grid lg:grid-cols-3 gap-4 mt-5 select-none"
         onContextMenu={(ev) => {
           ev.preventDefault();
         }}
