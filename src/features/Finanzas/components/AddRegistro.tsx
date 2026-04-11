@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/index";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle, XIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -36,11 +37,10 @@ import { createRegister } from "../api/create-register";
 import { Registro, type RegistroType } from "../types/form";
 
 interface AddRegistroProps {
-  getRegisters: () => void;
   fechaRegistro: string;
 }
 
-export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
+export function AddRegistro({ fechaRegistro }: AddRegistroProps) {
   const { control, handleSubmit, reset } = useForm<RegistroType>({
     resolver: zodResolver(Registro),
     defaultValues: {
@@ -50,6 +50,8 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
       etiquetas: [{ etiqueta: "" }],
     },
   });
+
+  const queryClient = useQueryClient();
 
   const { fields, append, remove } = useFieldArray({
     control: control,
@@ -80,7 +82,7 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
       }
       toast.success("Se guardó correctamente.");
       reset();
-      getRegisters();
+      queryClient.invalidateQueries({ queryKey: ["registros"] });
       handleOpen();
     } catch (error) {
       console.error(error);
@@ -171,7 +173,6 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
                   </Field>
                 )}
               />
-
               <FieldSet>
                 <FieldLegend>Etiquetas</FieldLegend>
                 <FieldDescription>
@@ -231,7 +232,6 @@ export function AddRegistro({ getRegisters, fechaRegistro }: AddRegistroProps) {
                 </FieldGroup>
               </FieldSet>
             </FieldGroup>
-
             <Field className="mt-4">
               <Button variant={"default"} disabled={isLoading}>
                 {isLoading ? (

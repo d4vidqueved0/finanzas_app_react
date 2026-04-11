@@ -10,10 +10,9 @@ import {
   AlertDialogTrigger,
   Button,
 } from "@/components/index";
-import { formatearFecha } from "@/utils/formatearFecha";
-import dayjs from "dayjs";
-import { ArrowLeft, ArrowRight, Loader, SlidersHorizontal } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader, SlidersHorizontal } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import type { RegistroTypeDB } from "../api/create-register";
@@ -24,22 +23,28 @@ import { AddRegistro } from "../components/AddRegistro";
 import { CardRegistro } from "../components/CardRegistro";
 import { EditRegistro } from "../components/EditRegistro";
 import { Filtros } from "../components/Filtros";
+import { SelectorFecha } from "../components/SelectorFecha";
+import { useFinanzasStore } from "../store/useFinanzasStore";
 
-const fechaActual = dayjs().format("YYYY-MM-DD");
 let timeMouse: number = 0;
 let interval: ReturnType<typeof setInterval>;
 
 export function FinanzasLayout() {
-  const [registros, setRegistros] = useState<RegistroTypeDB[] | []>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { filters } = useFinanzasStore();
+
+  const queryClient = useQueryClient();
+
+  const {
+    data: registros,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["registros", filters],
+    queryFn: () => getAllRegisterFilters(filters),
+  });
+
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState(() => ({
-    buscar: "",
-    tipo: "",
-    created_at: fechaActual,
-    etiqueta: "",
-  }));
+
   const [edit, setEdit] = useState<RegistroTypeDB | null>(null);
   const [isOpenEdit, setIsOpenEdit] = useState(false);
 
@@ -48,99 +53,12 @@ export function FinanzasLayout() {
   const [isDeleteActive, setDeleteActive] = useState(false);
 
   const handleEdit = (registro: RegistroTypeDB) => {
-    console.log(registro);
     setEdit(registro);
     setIsOpenEdit(true);
   };
 
   const handleDialog = () => {
     setIsOpenEdit((prev) => !prev);
-  };
-
-  const getRegistersFilters = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await getAllRegisterFilters(filters);
-      console.log(data);
-      if (error) {
-        setError("Error al recuperar los registros.");
-        return;
-      }
-      setRegistros(data);
-      setError("");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
-
-  const handleSearch = (buscar: string) => {
-    setFilters((prev) => {
-      return {
-        ...prev,
-        etiqueta: "",
-        buscar,
-        created_at: buscar === "" ? fechaActual : "Todas las fechas",
-      };
-    });
-  };
-
-  const handleType = (tipo: string) => {
-    setFilters((prev) => {
-      return { ...prev, etiqueta: "", tipo, created_at: "Todas las fechas" };
-    });
-  };
-
-  const handleEtiqueta = (etiqueta: string) => {
-    setFilters((prev) => {
-      if (prev.etiqueta === etiqueta) {
-        return { ...prev, etiqueta: "", created_at: fechaActual };
-      }
-      return { ...prev, etiqueta, created_at: "Todas las fechas" };
-    });
-  };
-
-  useEffect(() => {
-    const timeOut = setTimeout(() => {
-      getRegistersFilters();
-    }, 200);
-
-    return () => {
-      clearTimeout(timeOut);
-    };
-  }, [getRegistersFilters]);
-
-  const addDay = () => {
-    setFilters((prev) => {
-      return {
-        ...prev,
-        etiqueta: "",
-        created_at: dayjs(
-          prev.created_at === "Todas las fechas"
-            ? fechaActual
-            : prev.created_at,
-        )
-          .add(1, "day")
-          .format("YYYY-MM-DD"),
-      };
-    });
-  };
-
-  const lessDay = () => {
-    setFilters((prev) => {
-      return {
-        ...prev,
-        etiqueta: "",
-        created_at: dayjs(
-          prev.created_at === "Todas las fechas"
-            ? fechaActual
-            : prev.created_at,
-        )
-          .subtract(1, "day")
-          .format("YYYY-MM-DD"),
-      };
-    });
   };
 
   const handleDelete = async (id: string) => {
@@ -150,28 +68,16 @@ export function FinanzasLayout() {
       return;
     }
     toast.success("Se eliminó correctamente el registro.");
-    getRegistersFilters();
+    queryClient.invalidateQueries({ queryKey: ["registros"] });
   };
 
-  const clearFilters = () => {
-    setFilters({
-      buscar: "",
-      tipo: "",
-      created_at: fechaActual,
-      etiqueta: "",
-    });
-  };
-
-  const testEvent = () => {
-    console.log("DOWN");
+  const countTime = () => {
     interval = setInterval(() => {
       timeMouse = 500;
     }, 500);
   };
 
   const checkTime = () => {
-    console.log("UP");
-    console.log(timeMouse);
     clearInterval(interval);
 
     if (timeMouse && timeMouse >= 500) {
@@ -183,13 +89,13 @@ export function FinanzasLayout() {
   useEffect(() => {
     document
       .getElementById("seccion-registros")
-      ?.addEventListener("mousedown", testEvent);
+      ?.addEventListener("mousedown", countTime);
     document
       .getElementById("seccion-registros")
       ?.addEventListener("mouseup", checkTime);
     document
       .getElementById("seccion-registros")
-      ?.addEventListener("touchstart", testEvent);
+      ?.addEventListener("touchstart", countTime);
     document
       .getElementById("seccion-registros")
       ?.addEventListener("touchend", checkTime);
@@ -197,13 +103,13 @@ export function FinanzasLayout() {
     return () => {
       document
         .getElementById("seccion-registros")
-        ?.removeEventListener("mousedown", testEvent);
+        ?.removeEventListener("mousedown", countTime);
       document
         .getElementById("seccion-registros")
         ?.removeEventListener("mouseup", checkTime);
       document
         .getElementById("seccion-registros")
-        ?.removeEventListener("touchstart", testEvent);
+        ?.removeEventListener("touchstart", countTime);
       document
         .getElementById("seccion-registros")
         ?.removeEventListener("touchend", checkTime);
@@ -213,21 +119,14 @@ export function FinanzasLayout() {
   const handleDeleteRegisters = (idRegistro: string) => {
     if (!idRegistro) return;
     let newDelete: string[];
-
     const existe = deleteRegisters.filter((reg) => reg === idRegistro).length;
-
     if (existe) {
       newDelete = deleteRegisters.filter((reg) => reg !== idRegistro);
     } else {
       newDelete = [...deleteRegisters, idRegistro];
     }
-
     setDeleteRegisters(newDelete);
   };
-
-  // console.log(timeMouse);
-
-  // console.log(deleteRegisters);
 
   const handleDeleteManyRegisters = async () => {
     try {
@@ -239,7 +138,7 @@ export function FinanzasLayout() {
       toast.success("Se eliminaron los registros correctamente.");
       setDeleteRegisters([]);
       setDeleteActive(false);
-      getRegistersFilters();
+      queryClient.invalidateQueries({ queryKey: ["registros"] });
     } catch (error) {
       console.error(error);
     }
@@ -254,10 +153,7 @@ export function FinanzasLayout() {
         className={`grid ${isDeleteActive ? "grid-rows-2" : "grid-rows-1"} gap-3 lg:gap-0 lg:flex lg:items-center lg:justify-between my-5`}
       >
         <div className="flex items-center justify-between gap w-full">
-          <AddRegistro
-            getRegisters={getRegistersFilters}
-            fechaRegistro={filters.created_at}
-          />
+          <AddRegistro fechaRegistro={filters.created_at} />
           <Button
             onClick={() => {
               setShowFilters((prev) => !prev);
@@ -268,7 +164,6 @@ export function FinanzasLayout() {
             Filtros
           </Button>
         </div>
-
         <div className="flex items-center gap-3 lg:ms-3 justify-between">
           {isDeleteActive &&
             (deleteRegisters.length > 0 ? (
@@ -322,53 +217,35 @@ export function FinanzasLayout() {
           )}
         </div>
       </div>
-
-      {/* Filtros */}
-      <section className="w-full flex items-center justify-between mb-3">
-        <Button onClick={lessDay}>
-          <ArrowLeft />
-        </Button>
-        <span>
-          {filters.created_at === "Todas las fechas"
-            ? "Todas las fechas"
-            : formatearFecha(filters.created_at)}
-        </span>
-        <Button onClick={addDay}>
-          <ArrowRight />
-        </Button>
-      </section>
-
-      <Filtros
-        clearFilters={clearFilters}
-        handleSearch={handleSearch}
-        handleType={handleType}
-        showFilters={showFilters}
-      />
-      {error && <div className="text-center text-xl text-red-600">{error}</div>}
-      {loading && (
+      <SelectorFecha />
+      <Filtros showFilters={showFilters} />
+      {error && (
+        <div className="text-center text-xl text-red-600">{error.message}</div>
+      )}
+      {isLoading && (
         <div className="w-full flex justify-center my-3">
           <Loader className="animate-spin duration-2000" size={36} />
         </div>
       )}
-      {!loading && registros.length === 0 && (
+      {!isLoading && registros?.length === 0 && (
         <div className="text-center text-xl mt-3">No hay registros.</div>
       )}
       <section
         id="seccion-registros"
-        className="grid lg:grid-cols-3 gap-4 mt-5 select-none"
+        className="grid md:grid-cols-3 gap-4 mt-5 select-none"
         onContextMenu={(ev) => {
           ev.preventDefault();
         }}
       >
-        {!loading &&
+        {!isLoading &&
+          registros &&
           registros.length > 0 &&
           registros.map((registro) => (
             <CardRegistro
               key={registro.id}
               registro={registro}
               handleDelete={handleDelete}
-              handleEtiqueta={handleEtiqueta}
-              etiquetaFiltro={filters.etiqueta}
+              etiquetaFiltro={filters.tag}
               handleEdit={handleEdit}
               handleDeleteRegister={
                 isDeleteActive ? handleDeleteRegisters : undefined
@@ -383,7 +260,6 @@ export function FinanzasLayout() {
       </section>
       {edit !== null && (
         <EditRegistro
-          refrescarRegistros={getRegistersFilters}
           key={edit.id}
           open={isOpenEdit}
           handleDialog={handleDialog}

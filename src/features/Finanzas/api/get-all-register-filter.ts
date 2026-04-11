@@ -1,10 +1,10 @@
 import { supabase } from "@/supabase/supabase";
 
 interface Filters {
-  buscar: string;
-  tipo: string;
+  search: string;
+  type: string;
   created_at: string;
-  etiqueta: string;
+  tag: string;
 }
 
 export const getAllRegisterFilters = async (filters: Filters) => {
@@ -12,20 +12,20 @@ export const getAllRegisterFilters = async (filters: Filters) => {
   let query = supabase
     .from("Registro")
     .select("*")
-    .ilike("titulo", `%${filters.buscar}%`);
+    .ilike("titulo", `%${filters.search}%`);
 
   if (filters.created_at !== "Todas las fechas" && filters.created_at !== "")
     query = query
       .gte("created_at", `${filters.created_at}T00:00:00`)
       .lte("created_at", `${filters.created_at}T23:59:59`);
 
-  if (filters.tipo && filters.tipo !== "Todos" && filters.tipo !== "") {
-    query = query.eq("tipo", filters.tipo);
+  if (filters.type && filters.type !== "Todos" && filters.type !== "") {
+    query = query.eq("tipo", filters.type);
   }
 
-  if (filters.etiqueta && filters.etiqueta !== "") {
-    query = query.contains("etiquetas", [filters.etiqueta]);
+  if (filters.tag && filters.tag!== "") {
+    query = query.contains("etiquetas", [filters.tag]);
   }
   const response = await query;
-  return response;
+  return response.data;
 };

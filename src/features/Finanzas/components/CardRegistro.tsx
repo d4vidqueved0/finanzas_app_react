@@ -16,16 +16,16 @@ import { formatearDinero } from "@/utils/formatearDInero";
 import { formatearFecha } from "@/utils/formatearFecha";
 import { Circle, CircleCheckBig, Pencil, Trash } from "lucide-react";
 import type { RegistroTypeDB } from "../api/create-register";
+import { useFinanzasStore } from "../store/useFinanzasStore";
 
 const ESTILOS_TIPO = {
-  Ingreso: "border-b-blue-500",
   Egreso: "border-b-red-500",
+  Ingreso: "border-b-blue-500",
 };
 
 interface CardRegistroProps {
   registro: RegistroTypeDB;
   handleDelete: (id: string) => void;
-  handleEtiqueta: (etiqueta: string) => void;
   etiquetaFiltro: string;
   handleEdit: (registro: RegistroTypeDB) => void;
   handleDeleteRegister?: undefined | ((idRegistro: string) => void);
@@ -35,12 +35,13 @@ interface CardRegistroProps {
 export function CardRegistro({
   registro,
   handleDelete,
-  handleEtiqueta,
   etiquetaFiltro,
   handleEdit,
   isSelect,
   handleDeleteRegister = undefined,
 }: CardRegistroProps) {
+  const { handleTag } = useFinanzasStore();
+
   return (
     <Card
       onClick={
@@ -50,7 +51,17 @@ export function CardRegistro({
             }
           : undefined
       }
-      className={`w-full bg-black/30 backdrop-blur-xl grid grid-cols-3 items-center justify-between border shadow-md shadow-black/50 px-4 py-2 border-b-4 rounded-xl  ${ESTILOS_TIPO[registro.tipo]} ${handleDeleteRegister !== undefined ? "relative" : " "}`}
+      style={
+        isSelect
+          ? {
+              boxShadow:
+                registro.tipo === "Egreso"
+                  ? "0 0 10px #ef4444"
+                  : "0 0 10px #3b82f6",
+            }
+          : {}
+      }
+      className={`w-full bg-black/30 backdrop-blur-xl grid grid-cols-3 items-center justify-between border px-4 py-2 border-b-4 rounded-xl  ${ESTILOS_TIPO[registro.tipo]} ${handleDeleteRegister !== undefined ? "relative" : " "}`}
     >
       <div className="col-start-1 col-end-3">
         {handleDeleteRegister !== undefined &&
@@ -85,7 +96,7 @@ export function CardRegistro({
                 key={index}
                 variant={etiquetaFiltro === etiqueta ? "default" : "secondary"}
                 onClick={() => {
-                  handleEtiqueta(etiqueta);
+                  handleTag(etiqueta);
                 }}
               >
                 <Button

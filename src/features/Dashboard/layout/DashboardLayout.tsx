@@ -70,7 +70,7 @@ export function DashboardLayout() {
 
       {!isLoading && (
         <>
-          <section className="grid grid-cols-2 lg:grid-cols-5 w-full gap-3 my-5">
+          <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 w-full gap-3 my-5">
             <CardMetrica
               text="Ingresos"
               value={formatearDinero(dataMetricas.Ingreso) || 0}

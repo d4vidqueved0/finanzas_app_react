@@ -11,27 +11,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components";
+import { useFinanzasStore } from "../store/useFinanzasStore";
 
 interface FiltrosProps {
   showFilters: boolean;
-  handleSearch: (buscar: string) => void;
-  handleType: (value: string) => void;
-  clearFilters: () => void;
 }
-export function Filtros({
-  showFilters,
-  handleSearch,
-  handleType,
-  clearFilters,
-}: FiltrosProps) {
+export function Filtros({ showFilters }: FiltrosProps) {
+  const { handleSearch, handleType, clearFilters, filters } =
+    useFinanzasStore();
+  console.log(filters);
   return (
     <Card
       className={`bg-black/30 backdrop-blur-xl mt-5 px-5 transition-all p-0 m-0 ${showFilters ? "opacity-100" : "opacity-0 translate-y-full h-0"}`}
     >
       <div className="p-5 flex flex-col gap-3">
         <Field>
-          <Label>Buscar</Label>
+          <Label htmlFor="buscar">Buscar</Label>
           <Input
+            id="buscar"
             onChange={(ev: React.ChangeEvent<HTMLInputElement>) => {
               handleSearch(ev.target.value);
             }}
@@ -41,13 +38,13 @@ export function Filtros({
           />
         </Field>
         <Field>
-          <Label htmlFor="">Tipo de gasto</Label>
+          <Label htmlFor="tipo">Tipo de gasto</Label>
           <Select
             onValueChange={(value: string) => {
               handleType(value);
             }}
           >
-            <SelectTrigger className="w-45">
+            <SelectTrigger id="tipo" className="w-45">
               <SelectValue placeholder="Seleccione un tipo" />
             </SelectTrigger>
             <SelectContent position="popper">

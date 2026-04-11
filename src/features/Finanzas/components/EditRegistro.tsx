@@ -1,52 +1,51 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogHeader,
-  DialogDescription,
   Button,
-  FieldGroup,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
   Input,
-  SelectTrigger,
-  SelectValue,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  Select,
-  DialogClose,
-  FieldError,
-  FieldSet,
-  FieldLegend,
-  FieldDescription,
-  FieldContent,
-  InputGroupInput,
-  InputGroup,
-  InputGroupButton,
-  InputGroupAddon,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/index";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { Registro, type RegistroType } from "../types/form";
+import { useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle, XIcon } from "lucide-react";
+import { useState } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { RegistroTypeDB } from "../api/create-register";
 import { updateRegister } from "../api/update-register";
-import { toast } from "sonner";
-import { useState } from "react";
+import { Registro, type RegistroType } from "../types/form";
 
 interface EditRegistroProps {
   registro: RegistroTypeDB;
   open: boolean;
   handleDialog: () => void;
-  refrescarRegistros: () => void;
 }
 
 export function EditRegistro({
   registro,
   open,
   handleDialog,
-  refrescarRegistros,
 }: EditRegistroProps) {
   console.log(registro);
   const { control, handleSubmit } = useForm<RegistroType>({
@@ -60,6 +59,8 @@ export function EditRegistro({
       }),
     },
   });
+
+  const queryClient = useQueryClient();
 
   const { fields, remove, append } = useFieldArray({
     control: control,
@@ -82,7 +83,8 @@ export function EditRegistro({
         return;
       }
       toast.success("Se actualizó correctamente el registro.");
-      refrescarRegistros();
+      queryClient.invalidateQueries({ queryKey: ["registros"] });
+      handleDialog();
     } catch (error) {
       console.error(error);
     } finally {
