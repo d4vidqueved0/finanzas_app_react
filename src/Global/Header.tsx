@@ -1,7 +1,13 @@
 import { Button } from "@/components";
 import { signOut } from "@/features/Auth/api/sign-out";
 import { useAuthStore } from "@/features/Auth/store/useAuthStore";
-import { ChartNoAxesCombined, HandCoins, LogInIcon } from "lucide-react";
+import {
+  ChartNoAxesCombined,
+  HandCoins,
+  LogInIcon,
+  Moon,
+  Sun,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 
@@ -15,9 +21,9 @@ export function Header() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // const handleTheme = () => {
-  //   setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  // };
+  const handleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   const { session } = useAuthStore();
 
@@ -69,20 +75,24 @@ export function Header() {
             </div>
           )}
 
-          {/* <Button
+          <Button
             variant={"link"}
-            className="hover:no-underline scale-110 visible lg:invisible flex flex-col items-center gap-0"
+            className="hidden"
+            // className="hover:no-underline scale-110 visible lg:invisible flex flex-col items-center gap-0"
             onClick={handleTheme}
           >
             {theme === "light" ? <Moon /> : <Sun />}
             <span className="lg:hidden">Tema</span>
-          </Button> */}
+          </Button>
         </div>
-        {/* <div className="lg:flex items-center gap-6 hidden">
-          <Button variant={"link"} className="scale-110" onClick={handleTheme}>
+        <div className="lg:flex items-center gap-6 hidden">
+          <Button variant={"link"}
+          //  className="scale-110" 
+          className="hidden"
+           onClick={handleTheme}>
             {theme === "light" ? <Moon /> : <Sun />}
           </Button>
-        </div> */}
+        </div>
       </nav>
     </header>
   );
