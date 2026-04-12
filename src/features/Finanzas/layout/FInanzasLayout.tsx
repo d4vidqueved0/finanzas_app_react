@@ -12,7 +12,7 @@ import {
 } from "@/components/index";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader, SlidersHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import type { RegistroTypeDB } from "../api/create-register";
@@ -24,20 +24,21 @@ import { CardRegistro } from "../components/CardRegistro";
 import { EditRegistro } from "../components/EditRegistro";
 import { Filtros } from "../components/Filtros";
 import { SelectorFecha } from "../components/SelectorFecha";
+import { useLongTouch } from "../components/useLongTouch";
 import { useFinanzasStore } from "../store/useFinanzasStore";
 
-let timeMouse: number = 0;
-let interval: ReturnType<typeof setInterval>;
-
 export function FinanzasLayout() {
-  const { filters } = useFinanzasStore();
+  const { filters, isDeleteActive, handleDeleteActive } = useFinanzasStore();
+
+  // Habilitar la opcion de eliminar multiples registros
+  useLongTouch();
 
   const queryClient = useQueryClient();
 
   const {
     data: registros,
     error,
-    isLoading,
+    isFetching,
   } = useQuery({
     queryKey: ["registros", filters],
     queryFn: () => getAllRegisterFilters(filters),
@@ -49,8 +50,6 @@ export function FinanzasLayout() {
   const [isOpenEdit, setIsOpenEdit] = useState(false);
 
   const [deleteRegisters, setDeleteRegisters] = useState<string[] | []>([]);
-
-  const [isDeleteActive, setDeleteActive] = useState(false);
 
   const handleEdit = (registro: RegistroTypeDB) => {
     setEdit(registro);
@@ -70,51 +69,6 @@ export function FinanzasLayout() {
     toast.success("Se eliminó correctamente el registro.");
     queryClient.invalidateQueries({ queryKey: ["registros"] });
   };
-
-  const countTime = () => {
-    interval = setInterval(() => {
-      timeMouse = 500;
-    }, 500);
-  };
-
-  const checkTime = () => {
-    clearInterval(interval);
-
-    if (timeMouse && timeMouse >= 500) {
-      setDeleteActive(true);
-    }
-    timeMouse = 0;
-  };
-
-  useEffect(() => {
-    document
-      .getElementById("seccion-registros")
-      ?.addEventListener("mousedown", countTime);
-    document
-      .getElementById("seccion-registros")
-      ?.addEventListener("mouseup", checkTime);
-    document
-      .getElementById("seccion-registros")
-      ?.addEventListener("touchstart", countTime);
-    document
-      .getElementById("seccion-registros")
-      ?.addEventListener("touchend", checkTime);
-
-    return () => {
-      document
-        .getElementById("seccion-registros")
-        ?.removeEventListener("mousedown", countTime);
-      document
-        .getElementById("seccion-registros")
-        ?.removeEventListener("mouseup", checkTime);
-      document
-        .getElementById("seccion-registros")
-        ?.removeEventListener("touchstart", countTime);
-      document
-        .getElementById("seccion-registros")
-        ?.removeEventListener("touchend", checkTime);
-    };
-  }, []);
 
   const handleDeleteRegisters = (idRegistro: string) => {
     if (!idRegistro) return;
@@ -137,7 +91,7 @@ export function FinanzasLayout() {
       }
       toast.success("Se eliminaron los registros correctamente.");
       setDeleteRegisters([]);
-      setDeleteActive(false);
+      handleDeleteActive(false);
       queryClient.invalidateQueries({ queryKey: ["registros"] });
     } catch (error) {
       console.error(error);
@@ -208,7 +162,7 @@ export function FinanzasLayout() {
             <Button
               variant={"outline"}
               onClick={() => {
-                setDeleteActive(false);
+                handleDeleteActive(false);
                 setDeleteRegisters([]);
               }}
             >
@@ -222,12 +176,12 @@ export function FinanzasLayout() {
       {error && (
         <div className="text-center text-xl text-red-600">{error.message}</div>
       )}
-      {isLoading && (
+      {isFetching && (
         <div className="w-full flex justify-center my-3">
           <Loader className="animate-spin duration-2000" size={36} />
         </div>
       )}
-      {!isLoading && registros?.length === 0 && (
+      {!isFetching && registros?.length === 0 && (
         <div className="text-center text-xl mt-3">No hay registros.</div>
       )}
       <section
@@ -237,7 +191,7 @@ export function FinanzasLayout() {
           ev.preventDefault();
         }}
       >
-        {!isLoading &&
+        {!isFetching &&
           registros &&
           registros.length > 0 &&
           registros.map((registro) => (

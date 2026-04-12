@@ -15,6 +15,8 @@ interface useFinanzasInterface {
   handleType: (type: string) => void;
   handleTag: (tag: string) => void;
   clearFilters: () => void;
+  isDeleteActive: boolean;
+  handleDeleteActive: (change: boolean) => void;
 }
 
 export const useFinanzasStore = create<useFinanzasInterface>((set) => {
@@ -53,7 +55,7 @@ export const useFinanzasStore = create<useFinanzasInterface>((set) => {
           },
         };
       }),
-    handleSearch: (search: string) =>
+    handleSearch: (search) =>
       set((state) => {
         return {
           filters: {
@@ -64,7 +66,7 @@ export const useFinanzasStore = create<useFinanzasInterface>((set) => {
           },
         };
       }),
-    handleType: (type: string) =>
+    handleType: (type) =>
       set((state) => {
         return {
           filters: {
@@ -74,7 +76,7 @@ export const useFinanzasStore = create<useFinanzasInterface>((set) => {
           },
         };
       }),
-    handleTag: (tag: string) =>
+    handleTag: (tag) =>
       set((state) => {
         return {
           filters: {
@@ -94,6 +96,13 @@ export const useFinanzasStore = create<useFinanzasInterface>((set) => {
             created_at: currentDate,
             tag: "",
           },
+        };
+      }),
+    isDeleteActive: false,
+    handleDeleteActive: (change) =>
+      set(() => {
+        return {
+          isDeleteActive: change,
         };
       }),
   };
