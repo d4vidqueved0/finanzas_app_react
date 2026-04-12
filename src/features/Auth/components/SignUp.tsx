@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -19,11 +20,11 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { toast } from "sonner";
 import z from "zod";
-import { loginWithEmail } from "../api/login-with-email";
-import { loginWithGoogle } from "../api/login-with-google";
+import { signUp } from "../api/sing-up";
 
-const schemaLogin = z
+const schemaSignUp = z
   .object({
     email: z.email("Correo invalido.").trim(),
     password: z
@@ -40,9 +41,9 @@ const schemaLogin = z
     path: ["password_confirm"],
   });
 
-type schemaLoginType = z.infer<typeof schemaLogin>;
+type schemaSignUpType = z.infer<typeof schemaSignUp>;
 
-export function Login() {
+export function SignUp({ handleSwitch }: { handleSwitch: () => void }) {
   const [showPassword, setShowPassword] = useState("password");
   const [showConfirmPassword, setShowConfirm] = useState("password");
 
@@ -54,24 +55,47 @@ export function Login() {
     setShowConfirm((prev) => (prev === "password" ? "text" : "password"));
   };
 
-  const { control, handleSubmit } = useForm<schemaLoginType>({
-    resolver: zodResolver(schemaLogin),
+  const { control, handleSubmit, reset } = useForm<schemaSignUpType>({
+    resolver: zodResolver(schemaSignUp),
+    defaultValues: {
+      email: "",
+      password: "",
+      password_confirm: "",
+    },
   });
 
-  const onSubmit = (data: schemaLoginType) => {
-    console.log(data);
-    loginWithEmail(data.email, data.password);
+  const onSubmit = async (data: schemaSignUpType) => {
+    try {
+      const { error } = await signUp(data.email, data.password);
+      if (error) throw Error("Error al crear la cuenta.");
+      toast.success("Se creó la cuenta correctamente.");
+      reset();
+      handleSwitch();
+    } catch (error) {
+      console.error(error);
+      if (typeof error === "string") toast.error(error);
+    }
   };
   return (
     <Card className="bg-black/30 backdrop-blur-xl">
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardHeader>
           <CardTitle className="text-2xl font-semibold mb-1">
-            Iniciar sesión
+            Crear una cuenta
           </CardTitle>
+          <CardAction>
+            <Button
+              onClick={handleSwitch}
+              className="cursor-pointer"
+              variant={"link"}
+              type="button"
+            >
+              Iniciar sesión
+            </Button>
+          </CardAction>
         </CardHeader>
         <CardDescription className="text-md px-4">
-          Rellena los siguientes campos para iniciar sesión.
+          Rellena los siguientes campos para crear una cuenta.
         </CardDescription>
         <CardContent className="flex flex-col gap-5 mt-6">
           <Controller
@@ -159,32 +183,7 @@ export function Login() {
             className="w-full cursor-pointer transition-all active:scale-95"
             variant={"default"}
           >
-            Iniciar sesión
-          </Button>
-          <Button
-            className="w-full cursor-pointer transition-all active:scale-95"
-            variant={"secondary"}
-            type="button"
-            onClick={() => {
-              loginWithGoogle();
-            }}
-          >
-            <svg
-              className="w-4 h-4 me-1.5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M12.037 21.998a10.313 10.313 0 0 1-7.168-3.049 9.888 9.888 0 0 1-2.868-7.118 9.947 9.947 0 0 1 3.064-6.949A10.37 10.37 0 0 1 12.212 2h.176a9.935 9.935 0 0 1 6.614 2.564L16.457 6.88a6.187 6.187 0 0 0-4.131-1.566 6.9 6.9 0 0 0-4.794 1.913 6.618 6.618 0 0 0-2.045 4.657 6.608 6.608 0 0 0 1.882 4.723 6.891 6.891 0 0 0 4.725 2.07h.143c1.41.072 2.8-.354 3.917-1.2a5.77 5.77 0 0 0 2.172-3.41l.043-.117H12.22v-3.41h9.678c.075.617.109 1.238.1 1.859-.099 5.741-4.017 9.6-9.746 9.6l-.215-.002Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            Iniciar con Google
+            Crear cuenta
           </Button>
         </CardFooter>
       </form>

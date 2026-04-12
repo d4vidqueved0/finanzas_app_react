@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/index";
+import { useAuthStore } from "@/features/Auth/store/useAuthStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle, XIcon } from "lucide-react";
@@ -67,6 +68,8 @@ export function AddRegistro({ fechaRegistro }: AddRegistroProps) {
     setOpen((prev) => !prev);
   };
 
+  const { session } = useAuthStore();
+
   const onSubmit = async (data: RegistroType) => {
     setLoading(true);
     try {
@@ -74,6 +77,7 @@ export function AddRegistro({ fechaRegistro }: AddRegistroProps) {
         ...data,
         etiquetas: data.etiquetas.map((etiqueta) => etiqueta.etiqueta),
         created_at: fechaRegistro,
+        user_fk: session?.id,
       };
       const response = await createRegister(dataFormateada);
       if (response.error) {

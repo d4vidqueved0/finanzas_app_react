@@ -8,6 +8,7 @@ import { MeshGradientBackground } from "./components/ui/mesh-gradient";
 import { AuthLayout } from "./features/Auth/layout/AuthLayout";
 import { DashboardLayout } from "./features/Dashboard/layout/DashboardLayout";
 import { AuthProvider } from "./Global/AuthProvider";
+import { ProtectedRoutes } from "./Global/ProtectedRoutes";
 
 function App() {
   const queryClient = new QueryClient();
@@ -27,7 +28,6 @@ function App() {
     };
   }, []);
 
-
   return (
     <>
       <AuthProvider>
@@ -36,10 +36,13 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <main className="w-full max-w-5xl mx-auto px-3 mb-24 mt-12 lg:mt-24 lg:mb-12">
             <Routes>
+              <Route element={<ProtectedRoutes />}>
+                <Route path="/finanzas" element={<FinanzasLayout />} />
+                <Route path="/dashboard" element={<DashboardLayout />} />
+              </Route>
               <Route path="/" element={<Navigate to={"/finanzas"} />} />
-              <Route path="/finanzas" element={<FinanzasLayout />} />
-              <Route path="/dashboard" element={<DashboardLayout />} />
               <Route path="/login" element={<AuthLayout />} />
+              <Route path="/register" element={<AuthLayout />} />
             </Routes>
 
             <Toaster
