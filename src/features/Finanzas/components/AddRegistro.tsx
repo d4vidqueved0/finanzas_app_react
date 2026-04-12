@@ -85,8 +85,8 @@ export function AddRegistro({ fechaRegistro }: AddRegistroProps) {
         return;
       }
       toast.success("Se guardó correctamente.");
-      reset();
       queryClient.invalidateQueries({ queryKey: ["registros"] });
+      reset();
       handleOpen();
     } catch (error) {
       console.error(error);

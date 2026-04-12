@@ -17,6 +17,7 @@ interface useFinanzasInterface {
   clearFilters: () => void;
   isDeleteActive: boolean;
   handleDeleteActive: (change: boolean) => void;
+  handleDate: (date: Date) => void;
 }
 
 export const useFinanzasStore = create<useFinanzasInterface>((set) => {
@@ -103,6 +104,18 @@ export const useFinanzasStore = create<useFinanzasInterface>((set) => {
       set(() => {
         return {
           isDeleteActive: change,
+        };
+      }),
+    handleDate: (date) =>
+      set((state) => {
+        console.log(date);
+        const newDate = dayjs(date).format("YYYY-MM-DD");
+        console.log(newDate);
+        return {
+          filters: {
+            ...state.filters,
+            created_at: newDate,
+          },
         };
       }),
   };

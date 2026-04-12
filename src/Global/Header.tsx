@@ -5,6 +5,7 @@ import {
   ChartNoAxesCombined,
   HandCoins,
   LogInIcon,
+  LogOutIcon,
   Moon,
   Sun,
 } from "lucide-react";
@@ -57,7 +58,7 @@ export function Header() {
               to={"/login"}
               className={({ isActive }) =>
                 (isActive ? "text-blue-900 font-semibold" : "") +
-                ` dark:text-neutral-200 flex flex-col items-end w-full`
+                ` dark:text-neutral-200 flex flex-col items-center`
               }
             >
               <LogInIcon className="lg:hidden" size={18} />
@@ -66,10 +67,11 @@ export function Header() {
           ) : (
             <div className="flex flex-col items-end w-full ">
               <Button
-                className="cursor-pointer"
+                className="cursor-pointer flex flex-col gap-0 text-md p-0"
                 variant={"link"}
                 onClick={signOut}
               >
+                <LogOutIcon className="lg:hidden" size={18} />
                 Cerrar sesión
               </Button>
             </div>
@@ -86,10 +88,12 @@ export function Header() {
           </Button>
         </div>
         <div className="lg:flex items-center gap-6 hidden">
-          <Button variant={"link"}
-          //  className="scale-110" 
-          className="hidden"
-           onClick={handleTheme}>
+          <Button
+            variant={"link"}
+            //  className="scale-110"
+            className="hidden"
+            onClick={handleTheme}
+          >
             {theme === "light" ? <Moon /> : <Sun />}
           </Button>
         </div>
