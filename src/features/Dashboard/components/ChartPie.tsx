@@ -12,10 +12,8 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import type { RegistroTypeDB } from "@/features/Finanzas/api/create-register";
-import { formatearDinero } from "@/utils/formatearDInero";
-import dayjs from "dayjs";
 import { useMemo } from "react";
-import { Label, Pie, PieChart } from "recharts";
+import { LabelList, Pie, PieChart } from "recharts";
 
 interface ChartPieProps {
   data: RegistroTypeDB[];
@@ -23,7 +21,7 @@ interface ChartPieProps {
 }
 
 const chartConfig = {
-  valor: { label: "Monto Total" },
+  monto: { label: "Monto" },
   Ingreso: {
     label: "Ingresos",
     color: "#193cb8",
@@ -68,67 +66,45 @@ export function ChartPie({ data, className }: ChartPieProps) {
       className={`flex flex-col dark:bg-black/30 backdrop-blur-xl ${className}`}
     >
       <CardHeader className="items-center pb-0">
-        <CardTitle>Grafico de Torta</CardTitle>
-        <CardDescription>Mes de {dayjs().format("MMMM")}</CardDescription>
+        <CardTitle>Pie Chart - Label</CardTitle>
+        <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-62.5"
+          className="mx-auto aspect-square max-h-62.5 pb-0 [&_.recharts-pie-label-text]:fill-foreground"
         >
           <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  hideLabel
-                  indicator="dashed"
-                  formatter={(value, name) => (
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{name}:</span>
-
-                      <span>{formatearDinero(Number(value))}</span>
-                    </div>
-                  )}
-                />
-              }
-            />
+            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <Pie
               data={dataChart}
               dataKey="valor"
+              label={({ payload, ...props }) => {
+                return (
+                  <text
+                    cx={props.cx}
+                    cy={props.cy}
+                    x={props.x}
+                    y={props.y}
+                    textAnchor={props.textAnchor}
+                    dominantBaseline={props.dominantBaseline}
+                    fill="var(--foreground)"
+                  >
+                    {((payload.valor / total) * 100).toFixed(2) + "%"}
+                  </text>
+                );
+              }}
               nameKey="tipo"
-              innerRadius={60}
-              strokeWidth={5}
             >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-foreground text-xl font-bold"
-                        >
-                          {total.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground text-lG"
-                        >
-                          Total
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
+              <LabelList
+                dataKey="tipo"
+                className="fill-background"
+                stroke="none"
+                fontSize={12}
+                formatter={(value) =>
+                  chartConfig[value as keyof typeof chartConfig]?.label
+                }
+              />{" "}
             </Pie>
           </PieChart>
         </ChartContainer>

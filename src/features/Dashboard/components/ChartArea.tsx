@@ -24,9 +24,13 @@ interface ChartAreaProps {
 }
 
 const chartConfig = {
-  registro: {
-    label: "Registro",
+  Ingreso: {
+    label: "Ingreso",
     color: "blue",
+  },
+  Egreso: {
+    label: "Egreso",
+    color: "red",
   },
 } satisfies ChartConfig;
 
@@ -35,25 +39,35 @@ export function ChartArea({ data, className }: ChartAreaProps) {
     const primerDia = dayjs().startOf("month");
     const cantidadMes = dayjs(primerDia).daysInMonth();
     const mesActual = dayjs(primerDia).format("YYYY-MM");
-    const dias: Record<string, number> = {};
+    const dias: Record<string, object> = {};
     for (let i = 1; i <= cantidadMes; i++) {
       const fecha = `${mesActual}-${String(i).padStart(2, "0")}`;
-      dias[fecha] = 0;
+      dias[fecha] = { Ingreso: 0, Egreso: 0 };
     }
+    console.log(dias);
     const dataFormat = data.reduce((prev, act) => {
       const fecha = act.created_at?.split("T")[0];
       if (fecha && Object.hasOwn(prev, fecha)) {
-        prev[fecha] += 1;
+        (prev[fecha] as Record<"Ingreso" | "Egreso", number>)[
+          act.tipo as "Ingreso" | "Egreso"
+        ] += 1;
       }
       return prev;
     }, dias);
+    console.log(dataFormat);
     return Object.keys(dataFormat).map((fecha) => ({
       fecha,
-      registro: dataFormat[fecha],
+      Ingreso: (dataFormat[fecha] as Record<"Ingreso" | "Egreso", number>)[
+        "Ingreso"
+      ],
+      Egreso: (dataFormat[fecha] as Record<"Ingreso" | "Egreso", number>)[
+        "Egreso"
+      ],
     }));
   }, [data]);
 
   console.log(dataChart);
+
   return (
     <Card className={`pt-0 dark:bg-black/30 backdrop-blur-xl ${className}`}>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
@@ -120,7 +134,6 @@ export function ChartArea({ data, className }: ChartAreaProps) {
               }}
             />
             <ChartTooltip
-              cursor={false}
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
@@ -130,16 +143,22 @@ export function ChartArea({ data, className }: ChartAreaProps) {
                     });
                   }}
                   indicator="dot"
-                  color="white"
                 />
               }
             />
             <Area
-              dataKey="registro"
+              dataKey="Egreso"
               type="monotone"
-              fill="url(#fillRegistro)"
-              stroke="var(--color-registro)"
-              min={0}
+              fill="var(--color-Egreso)"
+              stroke="var(--color-Egreso)"
+              stackId='a'
+            />
+            <Area
+              dataKey="Ingreso"
+              type="monotone"
+              fill="var(--color-Ingreso)"
+              stroke="var(--color-Ingreso)"
+              stackId='a'
             />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>

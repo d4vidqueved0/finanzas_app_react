@@ -1,14 +1,13 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components";
 import type { RegistroTypeDB } from "@/features/Finanzas/api/create-register";
 import { formatearDinero } from "@/utils/formatearDInero";
 import dayjs from "dayjs";
-import { Info, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { getRegisterMonth } from "../api/get-register-month";
 import { CardMetrica } from "../components/CardMetrica";
 import { ChartArea } from "../components/ChartArea";
 import { ChartPie } from "../components/ChartPie";
-import { Helmet } from "react-helmet-async";
 
 export function DashboardLayout() {
   const [data, setData] = useState<RegistroTypeDB[] | []>([]);
@@ -55,10 +54,9 @@ export function DashboardLayout() {
   console.log(dataMetricas);
   return (
     <>
-
-    <Helmet>
-      <title>Dashboard</title>
-    </Helmet>
+      <Helmet>
+        <title>Dashboard</title>
+      </Helmet>
       <h1 className="text-5xl text-center font-bold">Dashboard</h1>
 
       {isLoading && (
@@ -80,7 +78,7 @@ export function DashboardLayout() {
               value={formatearDinero(dataMetricas.Egreso) || 0}
             />
             <CardMetrica text="Registros" value={data.length} />
-            <CardMetrica
+            {/* <CardMetrica
               text="Salud Financiera"
               icon={
                 <>
@@ -101,7 +99,7 @@ export function DashboardLayout() {
               }
               className={"flex items-center justify-between"}
               value={(dataMetricas.Egreso * 100) / dataMetricas.Ingreso}
-            ></CardMetrica>
+            ></CardMetrica> */}
           </section>
 
           {/* Graficos - tambien será un componenete pero de momento se queda aki jeje, ya lo es :P */}
