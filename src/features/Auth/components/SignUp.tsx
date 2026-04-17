@@ -67,13 +67,15 @@ export function SignUp({ handleSwitch }: { handleSwitch: () => void }) {
   const onSubmit = async (data: schemaSignUpType) => {
     try {
       const { error } = await signUp(data.email, data.password);
-      if (error) throw Error("Error al crear la cuenta.");
+      if (error) throw Error(error.message);
       toast.success("Se creó la cuenta correctamente.");
       reset();
       handleSwitch();
-    } catch (error) {
-      console.error(error);
-      if (typeof error === "string") toast.error(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) toast.error(error.message);
+      else if (typeof error === "string") {
+        toast.error(error);
+      }
     }
   };
   return (

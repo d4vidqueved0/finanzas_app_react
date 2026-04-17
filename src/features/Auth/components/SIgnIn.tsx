@@ -54,13 +54,15 @@ export function SignIn({ handleSwitch }: { handleSwitch: () => void }) {
   const onSubmit = async (data: schemaSignInType) => {
     try {
       const { error } = await loginWithEmail(data.email, data.password);
-      if (error) throw Error("Error al iniciar sesión.");
+      if (error) throw Error(error.message);
       toast.success("Se inició sesión correctamente");
       reset();
       navigate("/finanzas");
-    } catch (error) {
-      console.error(error);
-      if (typeof error === "string") toast.error(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) toast.error(error.message);
+      else if (typeof error === "string") {
+        toast.error(error);
+      }
     }
   };
   return (
