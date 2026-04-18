@@ -1,10 +1,18 @@
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components";
 import type { RegistroTypeDB } from "@/features/Finanzas/api/create-register";
 import { formatearDinero } from "@/utils/formatearDInero";
 import dayjs from "dayjs";
 import { Loader } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { getRegisterMonth } from "../api/get-register-month";
+import { getRegisterPeriod } from "../api/get-register-month";
 import { CardMetrica } from "../components/CardMetrica";
 import { ChartArea } from "../components/ChartArea";
 import { ChartPie } from "../components/ChartPie";
@@ -13,16 +21,44 @@ export function DashboardLayout() {
   const [data, setData] = useState<RegistroTypeDB[] | []>([]);
   const [isLoading, setLoading] = useState(true);
 
+  const [date, setDate] = useState(() => {
+    const primerDia = dayjs().startOf("month").format("YYYY-MM-DD");
+    const ultimoDia = dayjs().endOf("month").add(1, "day").format("YYYY-MM-DD");
+
+    return { primer: primerDia, ultimo: ultimoDia };
+  });
+
+  const handleDate = (periodo: string) => {
+    console.log(periodo);
+    let primer;
+    let ultimo;
+    if (periodo === "semana") {
+      primer = dayjs().startOf("week").format("YYYY-MM-DD");
+      ultimo = dayjs().endOf("week").add(1, "day").format("YYYY-MM-DD");
+    } else if (periodo === "mes") {
+      primer = dayjs().startOf("month").format("YYYY-MM-DD");
+      ultimo = dayjs().endOf("month").add(1, "day").format("YYYY-MM-DD");
+    } else if (periodo === "semestre") {
+      primer = dayjs().subtract(6, "month").format("YYYY-MM-DD");
+      ultimo = dayjs().add(1, "day").format("YYYY-MM-DD");
+    } else if (periodo === "año") {
+      primer = dayjs().subtract(1, "year").format("YYYY-MM-DD");
+      ultimo = dayjs().add(1, "day").format("YYYY-MM-DD");
+    } else if (periodo === "todo") {
+      primer = dayjs().subtract(5, "year").format("YYYY-MM-DD");
+      ultimo = dayjs().add(1, "day").format("YYYY-MM-DD");
+    }
+    if (primer && ultimo) setDate({ primer, ultimo });
+  };
+
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const primerDia = dayjs().startOf("month").format("YYYY-MM-DD");
-      const ultimoDia = dayjs()
-        .endOf("month")
-        .add(1, "day")
-        .format("YYYY-MM-DD");
       try {
-        const { data, error } = await getRegisterMonth(primerDia, ultimoDia);
+        const { data, error } = await getRegisterPeriod(
+          date.primer,
+          date.ultimo,
+        );
         if (error) {
           return;
         }
@@ -31,7 +67,7 @@ export function DashboardLayout() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [date]);
 
   const dataMetricas = useMemo(() => {
     const dataIncompleta = data.reduce(
@@ -41,13 +77,9 @@ export function DashboardLayout() {
       },
       {},
     );
-    const saludFinanciera =
-      (dataIncompleta.Egreso * 100) / dataIncompleta.Ingreso;
-
     return {
       Ingreso: dataIncompleta.Ingreso || 0,
       Egreso: dataIncompleta.Egreso || 0,
-      Salud: Number(saludFinanciera.toFixed(1)),
     };
   }, [data]);
 
@@ -58,7 +90,23 @@ export function DashboardLayout() {
         <title>Dashboard</title>
       </Helmet>
       <h1 className="text-5xl text-center font-bold">Dashboard</h1>
-
+      <Select defaultValue="mes" onValueChange={handleDate}>
+        <SelectTrigger className="w-full max-w-xs ms-auto my-5">
+          <SelectValue placeholder="Seleccione un periodo" />
+        </SelectTrigger>
+        <SelectContent
+          className="bg-black/30 backdrop-blur-xl"
+          position="popper"
+        >
+          <SelectGroup>
+            <SelectItem value="semana">Ultima semana</SelectItem>
+            <SelectItem value="mes">Ultimo mes</SelectItem>
+            <SelectItem value="semestre">Ultimo semestre</SelectItem>
+            <SelectItem value="año">Ultimo año</SelectItem>
+            <SelectItem value="todo">Todos (Ultimos 5 años)</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
       {isLoading && (
         <div className="w-full flex justify-center my-3">
           <Loader className="animate-spin duration-2000" size={36} />
@@ -78,34 +126,13 @@ export function DashboardLayout() {
               value={formatearDinero(dataMetricas.Egreso) || 0}
             />
             <CardMetrica text="Registros" value={data.length} />
-            {/* <CardMetrica
-              text="Salud Financiera"
-              icon={
-                <>
-                  {" "}
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="text-blue-700" size={16} />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        La salud financiera representa un calculo porcentual de
-                        egresos sobre ingresos. Una salud financiera buena está
-                        por debajo del 50%
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </>
-              }
-              className={"flex items-center justify-between"}
-              value={(dataMetricas.Egreso * 100) / dataMetricas.Ingreso}
-            ></CardMetrica> */}
-          </section>
-
-          {/* Graficos - tambien será un componenete pero de momento se queda aki jeje, ya lo es :P */}
-          <section className="grid gap-3  grid-cols-1 lg:grid-cols-3">
-            <ChartArea className="col-start-1 col-end-3" data={data} />
-            <ChartPie data={data} />
+            {/* Graficos - tambien será un componenete pero de momento se queda aki jeje, ya lo es :P */}
+            <ChartArea
+              className="col-start-1 col-end-4 mb-3 lg:mb-0"
+              data={data}
+              date={date}
+            />
+            <ChartPie className="col-start-4 col-end-6 row-start-1 row-end-3" date={date} data={data} />
           </section>
         </>
       )}

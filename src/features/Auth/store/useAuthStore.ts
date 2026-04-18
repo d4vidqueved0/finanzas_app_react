@@ -1,14 +1,14 @@
-import type { User } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
 import { create } from "zustand";
 
 interface AuthStoreProps {
-  session: User | null;
-  setSession: (session: User | null) => void;
+  session: Session | null | undefined;
+  setSession: (session: Session | null | undefined) => void;
 }
 
 export const useAuthStore = create<AuthStoreProps>((set) => {
   return {
-    session: null,
+    session: undefined,
     setSession: (session) =>
       set(() => {
         return {

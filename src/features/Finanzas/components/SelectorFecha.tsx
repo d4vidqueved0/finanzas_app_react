@@ -39,9 +39,8 @@ export function SelectorFecha() {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
+        <PopoverContent className="w-auto p-0 bg-black/30 backdrop-blur-xl">
           <Calendar
-          className="bg-black/30 "
             locale={es}
             mode="single"
             selected={dayjs(filters.created_at).toDate()}

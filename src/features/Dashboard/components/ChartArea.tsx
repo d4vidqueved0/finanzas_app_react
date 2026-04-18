@@ -21,6 +21,7 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 interface ChartAreaProps {
   data: RegistroTypeDB[];
   className?: string;
+  date: { primer: string; ultimo: string };
 }
 
 const chartConfig = {
@@ -34,17 +35,27 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartArea({ data, className }: ChartAreaProps) {
+export function ChartArea({ data, className, date }: ChartAreaProps) {
   const dataChart = useMemo(() => {
-    const primerDia = dayjs().startOf("month");
-    const cantidadMes = dayjs(primerDia).daysInMonth();
-    const mesActual = dayjs(primerDia).format("YYYY-MM");
+    // const primerDia = dayjs().startOf("month");
+    // const cantidadMes = dayjs(primerDia).daysInMonth();
+    // const mesActual = dayjs(primerDia).format("YYYY-MM");
     const dias: Record<string, object> = {};
-    for (let i = 1; i <= cantidadMes; i++) {
-      const fecha = `${mesActual}-${String(i).padStart(2, "0")}`;
-      dias[fecha] = { Ingreso: 0, Egreso: 0 };
+    // for (let i = 1; i <= cantidadMes; i++) {
+    //   const fecha = `${mesActual}-${String(i).padStart(2, "0")}`;
+    //   dias[fecha] = { Ingreso: 0, Egreso: 0 };
+    // }
+
+    let auxDay = date.primer;
+    const ultimoDia = date.ultimo;
+
+    while (auxDay !== ultimoDia) {
+      dias[auxDay] = { Ingreso: 0, Egreso: 0 };
+      auxDay = dayjs(auxDay).add(1, "day").format("YYYY-MM-DD");
     }
+
     console.log(dias);
+
     const dataFormat = data.reduce((prev, act) => {
       const fecha = act.created_at?.split("T")[0];
       if (fecha && Object.hasOwn(prev, fecha)) {
@@ -64,7 +75,7 @@ export function ChartArea({ data, className }: ChartAreaProps) {
         "Egreso"
       ],
     }));
-  }, [data]);
+  }, [data, date.primer, date.ultimo]);
 
   console.log(dataChart);
 
@@ -74,29 +85,15 @@ export function ChartArea({ data, className }: ChartAreaProps) {
         <div className="grid flex-1 gap-1">
           <CardTitle>Grafico de Área interactivo</CardTitle>
           <CardDescription>
-            Mostrando el total de registros por dia del mes{" "}
-            {dayjs().format("MMMM")}
+            Mostrando el total de registros por día desde el{" "}
+            <strong>
+              {dayjs(date.primer).format("DD MMMM [del] YYYY")} hasta{" "}
+              {dayjs(date.ultimo)
+                .subtract(1, "days")
+                .format("DD MMMM [del] YYYY")}
+            </strong>
           </CardDescription>
         </div>
-        {/* <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger
-            className="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
-            aria-label="Select a value"
-          >
-            <SelectValue placeholder="Last 3 months" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="90d" className="rounded-lg">
-              Last 3 months
-            </SelectItem>
-            <SelectItem value="30d" className="rounded-lg">
-              Last 30 days
-            </SelectItem>
-            <SelectItem value="7d" className="rounded-lg">
-              Last 7 days
-            </SelectItem>
-          </SelectContent>
-        </Select> */}
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
@@ -126,21 +123,16 @@ export function ChartArea({ data, className }: ChartAreaProps) {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("es-CL", {
-                  month: "short",
-                  day: "numeric",
-                });
+                const date = dayjs(value).format("D MMMM YY");
+                return date;
               }}
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("es-CL", {
-                      month: "short",
-                      day: "numeric",
-                    });
+                    const date = dayjs(value).format('DD MMMM YYYY')
+                    return date
                   }}
                   indicator="dot"
                 />
@@ -151,14 +143,14 @@ export function ChartArea({ data, className }: ChartAreaProps) {
               type="monotone"
               fill="var(--color-Egreso)"
               stroke="var(--color-Egreso)"
-              stackId='a'
+              stackId="a"
             />
             <Area
               dataKey="Ingreso"
               type="monotone"
               fill="var(--color-Ingreso)"
               stroke="var(--color-Ingreso)"
-              stackId='a'
+              stackId="a"
             />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>

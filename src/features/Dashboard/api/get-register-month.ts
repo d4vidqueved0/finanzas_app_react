@@ -1,6 +1,6 @@
 import { supabase } from "@/supabase/supabase";
 
-export const getRegisterMonth = async (
+export const getRegisterPeriod = async (
   fechaInicio: string,
   fechaFin: string,
 ) => {
