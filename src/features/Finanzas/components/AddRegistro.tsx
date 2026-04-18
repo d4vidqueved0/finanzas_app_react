@@ -77,7 +77,7 @@ export function AddRegistro({ fechaRegistro }: AddRegistroProps) {
         ...data,
         etiquetas: data.etiquetas.map((etiqueta) => etiqueta.etiqueta),
         created_at: fechaRegistro,
-        user_fk: session?.id,
+        user_fk: session?.user?.id,
       };
       const response = await createRegister(dataFormateada);
       if (response.error) {
