@@ -71,7 +71,7 @@ export function Header() {
               to={"/login"}
               className={({ isActive }) =>
                 (isActive ? "text-blue-900 font-semibold" : "") +
-                ` dark:text-neutral-200 flex flex-col items-center w-full`
+                ` dark:text-neutral-200 flex flex-col items-end w-full`
               }
             >
               <LogInIcon className="lg:hidden" size={18} />
