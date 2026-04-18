@@ -27,11 +27,11 @@ interface ChartAreaProps {
 const chartConfig = {
   Ingreso: {
     label: "Ingreso",
-    color: "blue",
+    color: "#193cb8",
   },
   Egreso: {
     label: "Egreso",
-    color: "red",
+    color: "#669cb8",
   },
 } satisfies ChartConfig;
 
@@ -102,16 +102,28 @@ export function ChartArea({ data, className, date }: ChartAreaProps) {
         >
           <AreaChart data={dataChart}>
             <defs>
-              <linearGradient id="fillRegistro" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillEgreso" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-registro)"
-                  stopOpacity={0.8}
+                  stopColor="var(--color-Egreso)"
+                  stopOpacity={0.9}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-registro)"
-                  stopOpacity={0.1}
+                  stopColor="var(--color-Egreso)"
+                  stopOpacity={0.2}
+                />
+              </linearGradient>
+              <linearGradient id="fillIngreso" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-Ingreso)"
+                  stopOpacity={0.9}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-Ingreso)"
+                  stopOpacity={0.2}
                 />
               </linearGradient>
             </defs>
@@ -131,8 +143,8 @@ export function ChartArea({ data, className, date }: ChartAreaProps) {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    const date = dayjs(value).format('DD MMMM YYYY')
-                    return date
+                    const date = dayjs(value).format("DD MMMM YYYY");
+                    return date;
                   }}
                   indicator="dot"
                 />
@@ -141,14 +153,14 @@ export function ChartArea({ data, className, date }: ChartAreaProps) {
             <Area
               dataKey="Egreso"
               type="monotone"
-              fill="var(--color-Egreso)"
+              fill="url(#fillEgreso)"
               stroke="var(--color-Egreso)"
               stackId="a"
             />
             <Area
               dataKey="Ingreso"
               type="monotone"
-              fill="var(--color-Ingreso)"
+              fill="url(#fillIngreso)"
               stroke="var(--color-Ingreso)"
               stackId="a"
             />
