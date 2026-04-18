@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import { MeshGradientBackground } from "./components/ui/mesh-gradient";
+import { AccountLayout } from "./features/Account/layout/AccountLayout";
 import { AuthLayout } from "./features/Auth/layout/AuthLayout";
 import { DashboardLayout } from "./features/Dashboard/layout/DashboardLayout";
 import { AuthProvider } from "./Global/AuthProvider";
@@ -39,6 +40,7 @@ function App() {
               <Route element={<ProtectedRoutes />}>
                 <Route path="/finanzas" element={<FinanzasLayout />} />
                 <Route path="/dashboard" element={<DashboardLayout />} />
+                <Route path="/cuenta" element={<AccountLayout />} />
               </Route>
               <Route path="/" element={<Navigate to={"/finanzas"} />} />
               <Route path="/login" element={<AuthLayout />} />

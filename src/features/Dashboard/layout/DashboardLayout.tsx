@@ -83,7 +83,6 @@ export function DashboardLayout() {
     };
   }, [data]);
 
-  console.log(dataMetricas);
   return (
     <>
       <Helmet>
@@ -91,7 +90,7 @@ export function DashboardLayout() {
       </Helmet>
       <h1 className="text-5xl text-center font-bold">Dashboard</h1>
       <Select defaultValue="mes" onValueChange={handleDate}>
-        <SelectTrigger className="w-full max-w-xs ms-auto my-5">
+        <SelectTrigger className="w-full max-w-xs mx-auto lg:ms-auto lg:me-0 my-5">
           <SelectValue placeholder="Seleccione un periodo" />
         </SelectTrigger>
         <SelectContent
@@ -126,13 +125,16 @@ export function DashboardLayout() {
               value={formatearDinero(dataMetricas.Egreso) || 0}
             />
             <CardMetrica text="Registros" value={data.length} />
-            {/* Graficos - tambien será un componenete pero de momento se queda aki jeje, ya lo es :P */}
             <ChartArea
-              className="col-start-1 col-end-4 mb-3 lg:mb-0"
+              className=" col-start-1 col-end-3 lg:col-start-1 lg:col-end-4 mb-3 lg:mb-0"
               data={data}
               date={date}
             />
-            <ChartPie className="col-start-4 col-end-6 row-start-1 row-end-3" date={date} data={data} />
+            <ChartPie
+              className="col-start-1 col-end-3 lg:col-start-4 lg:col-end-6 lg:row-start-1 lg:row-end-3"
+              date={date}
+              data={data}
+            />
           </section>
         </>
       )}

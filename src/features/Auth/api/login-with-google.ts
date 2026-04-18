@@ -1,10 +1,10 @@
 import { supabase } from "@/supabase/supabase";
 
-export const loginWithGoogle = () => {
-  supabase.auth.signInWithOAuth({
+export const loginWithGoogle = async () => {
+  await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/finanzas`,
     },
   });
 };
